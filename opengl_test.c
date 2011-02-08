@@ -57,7 +57,8 @@ GLchar** load_shader_file(char * file_name, GLint ** lengths, GLint * length)
     fclose(src); //close file
     *length = lines;
     *lengths = line_lengths;
-    for (int h =0; h<lines; h++){
+    int h;
+    for (h =0; h<lines; h++){
         printf("%i\n", line_lengths[h]);
         }
     
