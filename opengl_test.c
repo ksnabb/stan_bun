@@ -105,7 +105,7 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 // http://openglsamples.sourceforge.net/files/glut_ply.cpp
 
 float * read_ply_from_file(const char *file_name, float * vertices, int *
-number_vertices, int **fragments, int * number_fragments)
+number_vertices, int * fragments, int * number_fragments)
 {
 	//BEGIN PLY FILE HANDLING
     FILE *ply;
@@ -148,9 +148,6 @@ number_vertices, int **fragments, int * number_fragments)
     //observe that table is 1-dimensional
     vertices = malloc(3*amount_of_vertices*sizeof(float*));
 
-    
-
-    //glBegin(GL_TRIANGLES);
     for(i = 0; i < amount_of_vertices; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
         {
@@ -159,8 +156,20 @@ number_vertices, int **fragments, int * number_fragments)
             vertices[(3*i)+1] = y;
             vertices[(3*i)+2] = z;
         }
+    }    
+    
+    int * frags;
+    frags = (int *) malloc(3*amount_of_fragments*sizeof(int*));
+    int i0, i1, i2, i3;
+    for(i = 0; i < amount_of_fragments; i++) {
+        if(fgets(line, LINE_LENGTH, ply) != NULL)
+        {
+            sscanf(line, "%i %i %i %i", &i0, &i1, &i2, &i3);
+            frags[3*i] = i1;
+            frags[(3*i)+1] = i2;
+            frags[(3*i)+2] = i3;
+        }
     }
-    //glEnd();
 
      
 
@@ -169,8 +178,8 @@ number_vertices, int **fragments, int * number_fragments)
     //triangles
     //frags has first number of elements (after [0]) and then elements
     
-    int ** frags;
-    frags = (int**) malloc(amount_of_vertices*sizeof(int*));
+    //int ** frags;
+    //frags = (int**) malloc(amount_of_vertices*sizeof(int*));
 /* TODO: simplify to expect number 3 and 3 ints, do nothing if first number
  * isn't 3
  
@@ -211,6 +220,7 @@ number_vertices, int **fragments, int * number_fragments)
     
     fragments = frags;
     //what were we supposed to return again?
+    
     return vertices;
 }
 
@@ -338,7 +348,7 @@ int main (int argc, char **argv)
     #endif
    
     float * vertices;
-    int ** fragments;
+    int * fragments;
     int nvertices = 0;
     int nfragments = 0;
     char * filename = "bunny/reconstruction/bun_zipper.ply";
@@ -346,10 +356,13 @@ int main (int argc, char **argv)
     //todo add parameter for normals data
     
     vertices = read_ply_from_file(filename,
-    vertices, &nvertices, fragments, &nfragments);
-
+        vertices, &nvertices, 
+        fragments, &nfragments);
+        
     //todo add index data as glBufferData of type 
     //GL_ELEMENT_ARRAY_BUFFER
+    
+    
     //and normal data the same way as vertex data
     printf("read file %s that had \n%i vertices and \n%i fragments.\n",
     filename, nvertices, nfragments);
@@ -368,12 +381,18 @@ int main (int argc, char **argv)
     
     
     unsigned int elements_per_vertex = 3;
-    //unsigned int elements_per_triangle = 3 * elements_per_vertex;
+    unsigned int elements_per_triangle = 3 * elements_per_vertex;
     //this monster actually binds data
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[0]);
     glBufferData (GL_ARRAY_BUFFER, 
     elements_per_vertex* nvertices * sizeof (float), vertices,
     GL_STATIC_DRAW);
+    
+    //adding the indices to buffer
+    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
+    elements_per_triangle* nfragments * sizeof (float), fragments,
+    GL_STATIC_READ);
+    
     printf("boo\n");
 
     int vertex_position_location = 0;
@@ -434,7 +453,13 @@ void display_cb(void)
     //unsigned int count = elements_per_triangle * number_of_triangles;
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
-    glDrawArrays (GL_TRIANGLES, offset, *vertex_count);
+    //does this have to be in the callback function?
+    int * indices;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,
+                            GL_BUFFER_ACCESS,
+                            indices);
+    glDrawElements(GL_TRIANGLES, 65000, GL_UNSIGNED_BYTE, indices);
+    //glDrawArrays (GL_TRIANGLES, offset, *vertex_count);
 
     
     //glBegin(GL_POINTS);
