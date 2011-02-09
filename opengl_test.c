@@ -170,6 +170,7 @@ PlyObject read_ply_from_file(const char *file_name)
         }
     }    
     
+    //read the faces
     bunny.faces = (int *) malloc(bunny.amount_of_faces*sizeof(int*));
     //faces_indices is two dimensional array with [face_index][vertex_index]
     bunny.faces_indices = (int **) malloc(bunny.amount_of_faces*sizeof(int*));
@@ -330,16 +331,13 @@ int main (int argc, char **argv)
     printf("beginning read from file.\n");
     #endif
    
-    float * vertices;
-    int * fragments;
-    int nvertices = 0;
-    int nfragments = 0;
-    char * filename = "bunny/reconstruction/bun_zipper.ply";
-    //read file here
-    //todo add parameter for normals data
-    
+    char * filename = "bunny/reconstruction/bun_zipper.ply"; 
     read_ply_from_file(filename);
         
+    //read file here
+    //todo add parameter for normals data
+   
+    
     //todo add index data as glBufferData of type 
     //GL_ELEMENT_ARRAY_BUFFER
     
@@ -347,8 +345,10 @@ int main (int argc, char **argv)
     //and normal data the same way as vertex data
     printf("read file %s that had \n%i vertices and \n%i faces.\n",
     filename, bunny.amount_of_vertices, bunny.amount_of_faces);
+    
+    
     //lecture example
-    //using objects instead of nice old GL_vertex-calls :(
+    //using objects instead of nice old GL_vertex-calls :)
     unsigned int vertex_array_object_ID;
     unsigned int number_of_arrays = 1;
     glGenVertexArrays (number_of_arrays, &vertex_array_object_ID);
@@ -370,9 +370,9 @@ int main (int argc, char **argv)
     GL_STATIC_DRAW);
     
     //adding the indices to buffer
-    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
-    elements_per_triangle* nfragments * sizeof (float), fragments,
-    GL_STATIC_READ);
+    //glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
+    //elements_per_triangle* nfragments * sizeof (float), fragments,
+    //GL_STATIC_READ);
     
     printf("boo\n");
 
