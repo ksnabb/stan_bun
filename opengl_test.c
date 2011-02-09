@@ -190,6 +190,7 @@ PlyObject read_ply_from_file(const char *file_name)
         }
     }
     
+    /* Print it if you want to test it
     for(i = 0; i < bunny.amount_of_faces; i++) {
         int j;
         printf("%i ", bunny.faces[i]);
@@ -197,7 +198,7 @@ PlyObject read_ply_from_file(const char *file_name)
             printf("%i ", bunny.faces_indices[i][j]);
         }
         printf("\n");
-    }
+    }*/
     
     fclose(ply); //close file
     
