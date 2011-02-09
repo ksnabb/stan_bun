@@ -355,24 +355,25 @@ int main (int argc, char **argv)
     glBindVertexArray (vertex_array_object_ID);
     vertex_ID = vertex_array_object_ID;
 
+    
     unsigned int vertex_buffer_object_ID[2];
     unsigned int number_of_buffers = 2;
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
-    
-    
-    
+            
     unsigned int elements_per_vertex = 3;
     unsigned int elements_per_triangle = 3 * elements_per_vertex;
     //this monster actually binds data
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[0]);
     glBufferData (GL_ARRAY_BUFFER, 
-    elements_per_vertex* nvertices * sizeof (float), vertices,
-    GL_STATIC_DRAW);
+        elements_per_vertex* bunny.amount_of_vertices * sizeof (float), 
+        bunny.vertices,
+        GL_STATIC_DRAW);
     
     //adding the indices to buffer
-    //glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
-    //elements_per_triangle* nfragments * sizeof (float), fragments,
-    //GL_STATIC_READ);
+    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
+        elements_per_triangle* bunny.amount_of_faces * sizeof (float),
+        bunny.faces,
+        GL_STATIC_READ);
     
     printf("boo\n");
 
