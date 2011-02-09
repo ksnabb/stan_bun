@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdarg.h> 
 
 #define DEBUG
 
@@ -23,6 +24,7 @@ typedef struct {
     float * vertices;
     int amount_of_vertices;
     int * faces;
+    int ** faces_indices;
     int amount_of_faces;
 } PlyObject;
 
@@ -168,18 +170,35 @@ PlyObject read_ply_from_file(const char *file_name)
         }
     }    
     
-    bunny.faces = (int *) malloc(3*bunny.amount_of_faces*sizeof(int*));
-    int i0, i1, i2, i3;
+    bunny.faces = (int *) malloc(bunny.amount_of_faces*sizeof(int*));
+    //faces_indices is two dimensional array with [face_index][vertex_index]
+    bunny.faces_indices = (int **) malloc(bunny.amount_of_faces*sizeof(int*));
+    int amount_of_face_indices;
+    int vertex_index;
     for(i = 0; i < bunny.amount_of_faces; i++) {
-        if(fgets(line, LINE_LENGTH, ply) != NULL)
-        {
-            sscanf(line, "%i %i %i %i", &i0, &i1, &i2, &i3);
-            bunny.faces[3*i] = i1;
-            bunny.faces[(3*i)+1] = i2;
-            bunny.faces[(3*i)+2] = i3;
+        fscanf (ply, "%i", &amount_of_face_indices);
+        
+        bunny.faces[i] = amount_of_face_indices;
+        
+        //allocate memory for the amount of vertex indexes that the face includes
+        bunny.faces_indices[i] = (int *) malloc(amount_of_face_indices * sizeof(int *));
+        
+        int j;
+        for(j = 0; j < amount_of_face_indices; j++) {
+            fscanf(ply, "%i", &vertex_index);
+            bunny.faces_indices[i][j] = vertex_index;
         }
     }
-
+    
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+        int j;
+        printf("%i ", bunny.faces[i]);
+        for(j = 0; j < amount_of_face_indices; j++) {
+            printf("%i ", bunny.faces_indices[i][j]);
+        }
+        printf("\n");
+    }
+    
     fclose(ply); //close file
     
     //END PLY FILE HANDLING
