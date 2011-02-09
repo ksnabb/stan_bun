@@ -18,6 +18,17 @@ int * vertex_count;
 int LINE_LENGTH = 100;
 
 
+//describes the information in a ply file
+typedef struct {
+    float * vertices;
+    int amount_of_vertices;
+    int * faces;
+    int amount_of_faces;
+} PlyObject;
+
+//bunny as global so that it can be accessed from any function
+PlyObject bunny;
+
 //TOO COMPLEX, not used todo: remove 
 //loads shader file, returns pointer to text data
 GLchar** load_shader_file(char * file_name, GLint ** lengths, GLint * length)
@@ -103,16 +114,16 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 //todo
 // see here for reading indices & computing normals for every vertex
 // http://openglsamples.sourceforge.net/files/glut_ply.cpp
-
-float * read_ply_from_file(const char *file_name, float * vertices, int *
-number_vertices, int * fragments, int * number_fragments)
+// Saves the information from the file given to the bunny ply_object
+PlyObject read_ply_from_file(const char *file_name)
 {
 	//BEGIN PLY FILE HANDLING
     FILE *ply;
     
     char line[LINE_LENGTH]; //line to be read
-    int amount_of_vertices = 0;
-    int amount_of_fragments = 0; 
+    bunny.amount_of_vertices = 0;
+    bunny.amount_of_faces = 0;
+    
     ply = fopen (file_name, "rt"); //open ply file
 
     //read header
@@ -120,11 +131,10 @@ number_vertices, int * fragments, int * number_fragments)
     {
         /* convert the string to a long int */
         if (!strncmp (line, "element vertex", 14)) {
-            sscanf(line, "element vertex %i", &amount_of_vertices);
+            sscanf(line, "element vertex %i", &bunny.amount_of_vertices);
             
         } else if (!strncmp (line, "element face", 12)) {
-            sscanf(line, "element face %i", &amount_of_fragments);
-            
+            sscanf(line, "element face %i", &bunny.amount_of_faces);
         } 
         
         else if (!strncmp(line, "end_header", 10)) {
@@ -134,8 +144,8 @@ number_vertices, int * fragments, int * number_fragments)
 
       
     #ifdef DEBUG
-    printf("file format says %i vertices, %i faces\n", amount_of_vertices,
-    amount_of_fragments);
+    printf("file format says %i vertices, %i faces\n", bunny.amount_of_vertices,
+    bunny.amount_of_faces);
     #endif
     //read vertices
     int i;
@@ -146,82 +156,35 @@ number_vertices, int * fragments, int * number_fragments)
     //create vertex table for pushing into OpenGL
     //float * vertices;
     //observe that table is 1-dimensional
-    vertices = malloc(3*amount_of_vertices*sizeof(float*));
+    bunny.vertices = malloc(3*bunny.amount_of_vertices*sizeof(float*));
 
-    for(i = 0; i < amount_of_vertices; i++) {
+    for(i = 0; i < bunny.amount_of_vertices; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
         {
             sscanf(line, "%f %f %f", &x, &y, &z);
-            vertices[3*i] = x;
-            vertices[(3*i)+1] = y;
-            vertices[(3*i)+2] = z;
+            bunny.vertices[3*i] = x;
+            bunny.vertices[(3*i)+1] = y;
+            bunny.vertices[(3*i)+2] = z;
         }
     }    
     
-    int * frags;
-    frags = (int *) malloc(3*amount_of_fragments*sizeof(int*));
+    bunny.faces = (int *) malloc(3*bunny.amount_of_faces*sizeof(int*));
     int i0, i1, i2, i3;
-    for(i = 0; i < amount_of_fragments; i++) {
+    for(i = 0; i < bunny.amount_of_faces; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
         {
             sscanf(line, "%i %i %i %i", &i0, &i1, &i2, &i3);
-            frags[3*i] = i1;
-            frags[(3*i)+1] = i2;
-            frags[(3*i)+2] = i3;
+            bunny.faces[3*i] = i1;
+            bunny.faces[(3*i)+1] = i2;
+            bunny.faces[(3*i)+2] = i3;
         }
     }
-
-     
-
-    //got all the vertices (let's hope there's no off by 1 error up there)
-    //create fragment table, stupid format gives no assurance of only
-    //triangles
-    //frags has first number of elements (after [0]) and then elements
-    
-    //int ** frags;
-    //frags = (int**) malloc(amount_of_vertices*sizeof(int*));
-/* TODO: simplify to expect number 3 and 3 ints, do nothing if first number
- * isn't 3
- 
-    int a, b;
-    char * linepart = malloc(LINE_LENGTH*sizeof(char));
-
-   for(int i = 0; i < amount_of_vertices; i++){
-        if(fgets(line, LINE_LENGTH, ply) != NULL)
-        {
-            //simplify here
-            sscanf(line, "%i %s", &a, linepart); 
-            frags[i] = (int*) malloc((a+1)*sizeof(int));
-            frags[i][0] = a;
-            for (int j = 0; i < a; j++){
-            char * anotherpart = malloc(LINE_LENGTH*sizeof(char));
-                    sscanf(linepart, "%i %s", &b, anotherpart);
-                    free(linepart);
-                    linepart = anotherpart;
-                    frags[i][j+1] = b;
-                    free(anotherpart);
-                    //this is ugly and i'm ashamed of myself
-                    //but it should work for normal cases
-                }
-                free(linepart);
-        }
-        
-        
-    }
- */
-    //great, now we've read the triangle data
 
     fclose(ply); //close file
+    
     //END PLY FILE HANDLING
-    *number_vertices = amount_of_vertices;
-    *number_fragments = amount_of_fragments;
-    vertex_count = &amount_of_vertices;
-    
-    
-    fragments = frags;
-    //what were we supposed to return again?
-    
-    return vertices;
+      
+    return bunny;
 }
 
 //ToDo, enable Z-buffering at some point
@@ -355,17 +318,15 @@ int main (int argc, char **argv)
     //read file here
     //todo add parameter for normals data
     
-    vertices = read_ply_from_file(filename,
-        vertices, &nvertices, 
-        fragments, &nfragments);
+    read_ply_from_file(filename);
         
     //todo add index data as glBufferData of type 
     //GL_ELEMENT_ARRAY_BUFFER
     
     
     //and normal data the same way as vertex data
-    printf("read file %s that had \n%i vertices and \n%i fragments.\n",
-    filename, nvertices, nfragments);
+    printf("read file %s that had \n%i vertices and \n%i faces.\n",
+    filename, bunny.amount_of_vertices, bunny.amount_of_faces);
     //lecture example
     //using objects instead of nice old GL_vertex-calls :(
     unsigned int vertex_array_object_ID;
