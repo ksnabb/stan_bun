@@ -31,6 +31,9 @@ typedef struct {
 //bunny as global so that it can be accessed from any function
 PlyObject bunny;
 
+//Triangle indices for the bunny
+int * bunny_indices;
+
 //TOO COMPLEX, not used todo: remove 
 //loads shader file, returns pointer to text data
 GLchar** load_shader_file(char * file_name, GLint ** lengths, GLint * length)
@@ -190,17 +193,7 @@ PlyObject read_ply_from_file(const char *file_name)
             bunny.faces_indices[i][j] = vertex_index;
         }
     }
-    
-    /* Print it if you want to test it
-    for(i = 0; i < bunny.amount_of_faces; i++) {
-        int j;
-        printf("%i ", bunny.faces[i]);
-        for(j = 0; j < amount_of_face_indices; j++) {
-            printf("%i ", bunny.faces_indices[i][j]);
-        }
-        printf("\n");
-    }*/
-    
+        
     fclose(ply); //close file
     
     //END PLY FILE HANDLING
@@ -369,10 +362,31 @@ int main (int argc, char **argv)
         bunny.vertices,
         GL_STATIC_DRAW);
     
+    
+    //count the bunny triangle indices
+    int i;
+    int j;
+    int indices_amount = 0;
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+        indices_amount = indices_amount + bunny.faces[i];
+    }
+    printf("indices amount %i \n", indices_amount);
+    bunny_indices = (int *) malloc(indices_amount * sizeof(int*));
+    
+    for(i=0; i < bunny.amount_of_faces; i++) {
+        int lim = bunny.faces[i];
+        if(lim == 3) {
+            for(j=0; j < lim; j++) {
+                bunny_indices[i * 3 + j] = bunny.faces_indices[i][j]; 
+            }
+        }
+    }
+    
     //adding the indices to buffer
+    
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
-        elements_per_triangle* bunny.amount_of_faces * sizeof (float),
-        bunny.faces,
+        sizeof (bunny_indices),
+        bunny_indices,
         GL_STATIC_READ);
     
     printf("boo\n");
@@ -381,7 +395,7 @@ int main (int argc, char **argv)
     glBindAttribLocation(p, vertex_position_location, "vertex_Position");
 
     glVertexAttribPointer (vertex_position_location, elements_per_vertex,
-    GL_FLOAT, GL_FALSE, 0, 0);
+        GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray (vertex_position_location);
 
 
@@ -435,17 +449,9 @@ void display_cb(void)
     //unsigned int count = elements_per_triangle * number_of_triangles;
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
-    //does this have to be in the callback function?
-    int * indices;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,
-                            GL_BUFFER_ACCESS,
-                            indices);
-    glDrawElements(GL_TRIANGLES, 65000, GL_UNSIGNED_BYTE, indices);
-    //glDrawArrays (GL_TRIANGLES, offset, *vertex_count);
-
     
-    //glBegin(GL_POINTS);
-	//glEnd();
+    glDrawElements(GL_TRIANGLES, bunny.amount_of_faces, GL_UNSIGNED_INT, bunny_indices);
+
 	glFrontFace(GL_CCW);
 
 
