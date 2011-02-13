@@ -6,17 +6,28 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdarg.h> 
+#include <math.h>
 
 #define DEBUG
 
+float MOVE_STEP = 0.1;
+
 void display_cb(void);
 void keyb_cb(unsigned char key, int x, int y);
+void sp_keyb_cb(int key, int x, int y);
 void mouse_motion_cb(int x, int y);
+void mouse_cb(int button, int state, int x, int y);
+void timer_cb(int unused);
+void window_resize_cb(int width, int height);
+void update_modelview();
+void update_projection();
 
+//Triangle indices for the bunny
+int * bunny_indices;
 int vertex_ID;
 int * vertex_count;
 int LINE_LENGTH = 100;
-
+GLuint p; //program
 
 //describes the information in a ply file
 typedef struct {
@@ -25,15 +36,46 @@ typedef struct {
     int * faces;
     int ** faces_indices;
     int amount_of_faces;
-} PlyObject;
+    float * normals;
+} ply_object;
+
+typedef struct {
+    float fovy;
+    float aspect;
+    float near;
+    float far;
+    
+} projection_data;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+    } scale;
+
+typedef struct {
+    float camera_x;
+    float camera_y;
+    float camera_z;
+    float lookat_x; 
+    float lookat_y; 
+    float lookat_z;
+    float up_x;
+    float up_y;
+    float up_z;
+    float angle;
+    
+} modelview_data;
+
+
 
 //bunny as global so that it can be accessed from any function
-PlyObject bunny;
+ply_object bunny;
+projection_data proj;
+modelview_data mod;
 
-//Triangle indices for the bunny
-int * bunny_indices;
 
-/reads a file to a char array
+//reads a file to a char array
 GLchar * simple_fileread(char * file_name, GLint * length)
 {
     #ifdef DEBUG
@@ -42,7 +84,7 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 
     GLint chars = 0;
     FILE *src;
-    src = fopen (file_name, "rt"); //open ply file 
+    src = fopen (file_name, "rt"); //open shader file 
     if (src == NULL){
         fprintf(stderr, "Fatal error in opening file %s", file_name);
         return NULL;
@@ -72,7 +114,7 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 // see here for reading indices & computing normals for every vertex
 // http://openglsamples.sourceforge.net/files/glut_ply.cpp
 // Saves the information from the file given to the bunny ply_object
-PlyObject read_ply_from_file(const char *file_name)
+ply_object read_ply_from_file(const char *file_name)
 {
 	//BEGIN PLY FILE HANDLING
     FILE *ply;
@@ -182,42 +224,64 @@ int main (int argc, char **argv)
 	glGetString (GL_VERSION));
 	glutKeyboardFunc(keyb_cb);
 	glutMotionFunc(mouse_motion_cb);
-   
+	glutSpecialFunc(sp_keyb_cb);
+    glutTimerFunc(1000, timer_cb, 0);
+    glutReshapeFunc(window_resize_cb);
 
+    //initialize modelview and projection matrices
+    mod.camera_x = 0.0;
+    mod.camera_y = 0.0;
+    mod.camera_z = 0.0;
+    mod.lookat_x = 0.0;
     
+    mod.lookat_y = 0.0;
+    mod.lookat_z = 0.0;
+    mod.up_x = 0.0;
+    mod.up_y = 1.0;
+    mod.up_z = 0.0;
+
+    mod.angle = 0.0;
+
+    proj.fovy = 45;
+    proj.aspect = 1.0;
+    proj.near = 1;
+    proj.far = 1000;
    
+    update_projection();
+    update_modelview();
+    
     // load shaders
     
     #ifdef DEBUG
     printf("starting to load shaders\n");
     #endif
-    GLuint p, f, v;
+    GLuint f, v;
     p = glCreateProgram ();
     
     GLchar *vs, *fs;
     v = glCreateShader (GL_VERTEX_SHADER);
     f = glCreateShader (GL_FRAGMENT_SHADER);
-    GLint * vlen = malloc(sizeof(int));
-    GLint * flen = malloc(sizeof(int));
+    GLint vlen = 0;
+    GLint flen = 0;
     
     
-    vs = simple_fileread("simple_shader.vert", vlen);
+    vs = simple_fileread("simple_shader.vert", &vlen);
 
     #ifdef DEBUG
-    printf("loaded vertex shader with %i chars\n", *vlen);
+    printf("loaded vertex shader with %i chars\n", vlen);
     #endif
     
-    fs = simple_fileread("simple_shader.frag", flen);
+    fs = simple_fileread("simple_shader.frag", &flen);
     
     #ifdef DEBUG
-    printf("loaded fragment shader with %i characters\n",*flen);
+    printf("loaded fragment shader with %i characters\n",flen);
     #endif
     
 
     const GLchar * vv = vs;
     const GLchar * ff = fs;
-    const GLint flenc = *flen;
-    const GLint vlenc = *vlen;
+    const GLint flenc = flen;
+    const GLint vlenc = vlen;
     glShaderSource (v, 1, &vv, &vlenc);
     glShaderSource (f, 1, &ff, &flenc);
 
@@ -229,13 +293,14 @@ int main (int argc, char **argv)
     printf("shaders loaded. compiling next\n");
     #endif
     int compiled;
+    int infoLogLen = 1000, charsWritten = 0;
+    char *infoLog = 0;
     glCompileShader (v);
     glGetShaderiv (v, GL_COMPILE_STATUS, &compiled);
     if (!compiled) {
-        int infoLogLen = 0, charsWritten = 0;
-        char *infoLog = 0;
         //glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &infoLogLen);
         if (infoLogLen > 0) {
+            printf("Errors compling vertex shader:\n");
             infoLog = (char *)malloc (infoLogLen);
             glGetShaderInfoLog (v, infoLogLen, &charsWritten,
             infoLog);
@@ -244,15 +309,15 @@ int main (int argc, char **argv)
         }
     }
      
+    compiled = 0;
     glCompileShader(f);
     glGetShaderiv (f, GL_COMPILE_STATUS, &compiled);
     if (!compiled) {
-        int infoLogLen = 0, charsWritten = 0;
-        char *infoLog = 0;
         //glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &infoLogLen);
         if (infoLogLen > 0) {
+            printf("Errors compling fragment shader:\n");
             infoLog = (char *)malloc (infoLogLen);
-            glGetShaderInfoLog (v, infoLogLen, &charsWritten,
+            glGetShaderInfoLog (f, infoLogLen, &charsWritten,
             infoLog);
             printf ("%s\n", infoLog);
             free (infoLog);
@@ -306,7 +371,7 @@ int main (int argc, char **argv)
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
             
     unsigned int elements_per_vertex = 3;
-    unsigned int elements_per_triangle = 3 * elements_per_vertex;
+//    unsigned int elements_per_triangle = 3 * elements_per_vertex;
     //this monster actually binds data
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[0]);
     glBufferData (GL_ARRAY_BUFFER, 
@@ -341,7 +406,6 @@ int main (int argc, char **argv)
         bunny_indices,
         GL_STATIC_READ);
     
-    printf("boo\n");
 
     int vertex_position_location = 0;
     glBindAttribLocation(p, vertex_position_location, "vertex_Position");
@@ -374,11 +438,10 @@ void display_cb(void)
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
     
-    /* not sure if these need to be passed
     unsigned int location_projection_matrix = glGetUniformLocation(p,
-    "projectionMatrix");
-    unsigned int location_modelview_matrix = gelGetUniformLocation(p,
-    "modelviewMatrix");
+    "projection_matrix");
+    unsigned int location_modelview_matrix = glGetUniformLocation(p,
+    "modelview_matrix");
     
     GLfloat mp[16];
     GLfloat mv[16];
@@ -386,18 +449,17 @@ void display_cb(void)
     glGetFloatv (GL_MODELVIEW_MATRIX, mv);
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
-    */
-
-
+    
+    
     glBindVertexArray (vertex_ID);
 
 	//here goes actual drawing code
 	glFrontFace(GL_CW);
 	
 	//glutSolidTeapot(0.5);
-	glScalef(5,5,5);
+//	glScalef(5,5,5);
 
-    unsigned int offset = 0;
+   // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
@@ -415,6 +477,7 @@ void display_cb(void)
 void mouse_motion_cb(int x, int y)
 {
 	printf("mouse moved x: %i, y: %i\n", x, y);
+    
 }
 
 void keyb_cb(unsigned char key, int x, int y)
@@ -422,4 +485,84 @@ void keyb_cb(unsigned char key, int x, int y)
 	printf("keyboard key pushed %c\n", key );
 }
 
+void move_camera(int direction){
+    mod.camera_x = mod.camera_x + direction*mod.lookat_x*MOVE_STEP;    
+    mod.camera_z = mod.camera_z +  direction*mod.lookat_z*MOVE_STEP;    
+    update_modelview();
+}
 
+
+void rotate_camera(float angle){
+    mod.lookat_x = sin(angle) ;    
+    mod.lookat_z = -1.0*cos(angle) ;   
+    update_modelview();
+}
+
+
+
+void sp_keyb_cb(int key, int x, int y)
+{
+    switch(key)
+    {
+    case(GLUT_KEY_UP):
+        printf("forward key pressed\n");
+        move_camera(1);
+        break;
+    case (GLUT_KEY_DOWN):
+        printf("backward key pressed\n"); 
+        move_camera(-1);
+        break;
+    case (GLUT_KEY_LEFT):
+        printf("left key pressed\n"); 
+        mod.angle += -0.1 ;
+        rotate_camera(mod.angle);
+        break;
+    case (GLUT_KEY_RIGHT):
+        printf("right key pressed\n"); 
+        mod.angle += 0.1 ;
+        rotate_camera(mod.angle);
+        break; 
+    }
+
+}
+
+
+
+void timer_cb(int value){
+//    display_cb();
+    }
+
+void window_resize_cb(int width, int height){
+    //int old_height, old_width;
+    //old_height = 2*proj.near*sin(proj.fovy);
+    //old_width = old_height*proj.aspect;
+    printf("resize window cb called\n");
+    float ratio = width / height;
+    proj.aspect = ratio;
+
+    proj.fovy = asin((height/2)/proj.near);
+    update_projection();
+    glViewport(0,0,width, height);
+    }
+
+
+void update_modelview(){
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(mod.camera_x, mod.camera_y, mod.camera_z,
+    (mod.camera_x + mod.lookat_x), (mod.camera_y+mod.lookat_y), (mod.camera_z+
+    mod.lookat_z),
+    mod.up_x, mod.up_y, mod.up_z);
+    display_cb(); //remove later
+}
+
+void update_projection(){
+    //glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(proj.fovy, proj.aspect, proj.near, proj.far);
+    display_cb();
+    }
+
+
+    
+    
