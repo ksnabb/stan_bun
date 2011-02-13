@@ -12,7 +12,6 @@
 void display_cb(void);
 void keyb_cb(unsigned char key, int x, int y);
 void mouse_motion_cb(int x, int y);
-char** load_shader_file(char * file_name, GLint ** lengths, GLint * length);
 
 int vertex_ID;
 int * vertex_count;
@@ -34,54 +33,7 @@ PlyObject bunny;
 //Triangle indices for the bunny
 int * bunny_indices;
 
-//TOO COMPLEX, not used todo: remove 
-//loads shader file, returns pointer to text data
-GLchar** load_shader_file(char * file_name, GLint ** lengths, GLint * length)
-{    
-    #ifdef DEBUG
-    printf("loading shader from file %s\n", file_name);
-    #endif
-
-    GLint lines = 0;
-    FILE *src;
-    src = fopen (file_name, "rt"); //open ply file 
-    if (src == NULL){
-        fprintf(stderr, "Fatal error in opening file %s", file_name);
-        return NULL;
-        }
-    int currentsize = 128;
-    GLchar ** shader = malloc(currentsize*sizeof(char*));
- 
-   int * line_lengths = malloc(currentsize*sizeof(int));
-    char line[LINE_LENGTH];
-    printf("starting to read\n");
-    while(fgets(line,LINE_LENGTH, src) != NULL)
-    {
-        if (lines >= currentsize)
-        {
-            shader = realloc(shader, 2*currentsize*sizeof(char*));
-            line_lengths = realloc(line_lengths, 2*currentsize*sizeof(int));
-            currentsize = 2*currentsize;
-        }
-        line_lengths[lines] = strlen(line);
-        printf("line %i is %i chars long\n", lines, line_lengths[lines]);
-        shader[lines] = (char *) malloc(strlen(line)*sizeof(char));
-        strcpy(shader[lines], line);
-        lines++;
-    }
-
-    fclose(src); //close file
-    *length = lines;
-    *lengths = line_lengths;
-    int h;
-    for (h =0; h<lines; h++){
-        printf("%i\n", line_lengths[h]);
-        }
-    
-    return shader;
-}
-
-//reads a file to a char array
+/reads a file to a char array
 GLchar * simple_fileread(char * file_name, GLint * length)
 {
     #ifdef DEBUG
