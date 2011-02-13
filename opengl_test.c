@@ -235,7 +235,7 @@ int main (int argc, char **argv)
     mod.lookat_x = 0.0;
     
     mod.lookat_y = 0.0;
-    mod.lookat_z = 0.0;
+    mod.lookat_z = -1.0;
     mod.up_x = 0.0;
     mod.up_y = 1.0;
     mod.up_z = 0.0;
@@ -455,7 +455,9 @@ void display_cb(void)
 
 	//here goes actual drawing code
 	glFrontFace(GL_CW);
-	
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+
 	//glutSolidTeapot(0.5);
 //	glScalef(5,5,5);
 
