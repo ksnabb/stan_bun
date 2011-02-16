@@ -11,8 +11,6 @@
 
 #define DEBUG
 
-float MOVE_STEP = 0.1;
-
 //Triangle indices for the bunny
 int * bunny_indices;
 int vertex_ID;
@@ -306,7 +304,7 @@ void display_cb(void)
 	glutSwapBuffers();
 
 }
-
+/*
 void mouse_motion_cb(int x, int y)
 {
 	printf("mouse moved x: %i, y: %i\n", x, y);
@@ -396,6 +394,6 @@ void update_projection(){
     display_cb();
     }
 
-
+*/
     
     
