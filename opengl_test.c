@@ -203,8 +203,8 @@ int main (int argc, char **argv)
     vertex_ID = vertex_array_object_ID;
 
     
-    unsigned int vertex_buffer_object_ID[3];
-    unsigned int number_of_buffers = 2;
+    unsigned int number_of_buffers = 3;
+    unsigned int vertex_buffer_object_ID[number_of_buffers];
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
             
     unsigned int elements_per_vertex = 3;
@@ -216,20 +216,22 @@ int main (int argc, char **argv)
         elements_per_vertex* bunny.amount_of_vertices * sizeof (float), 
         bunny.vertices, GL_STATIC_DRAW);
  
- int vertex_position_location = 0;
-    glBindAttribLocation(p, vertex_position_location, "vertex_Position");
+    int vertex_position_location = 0;
+    glBindAttribLocation(p, vertex_position_location, "vertex_position");
 
     glVertexAttribPointer (vertex_position_location, elements_per_vertex,
         GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray (vertex_position_location);
 
 
- //adding the indices to buffer
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_ID[1]); 
+    //adding the indices to buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_ID[1]); 
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
         bunny.amount_of_faces*3*sizeof(int),
         bunny.faces_indices,
         GL_STATIC_READ);
+    
+    
     //normal buffer
     unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
 
@@ -281,7 +283,7 @@ void display_cb(void)
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
     #ifdef DEBUG
-    printf("modelview_matrix\n");
+/*    printf("modelview_matrix\n");
     for (int i = 0; i < 16; i++)
     {
         printf("%f, ", mv[i]);
@@ -295,7 +297,7 @@ void display_cb(void)
         if((i+1)%4 == 0)
             printf("\n");
     } 
- 
+*/ 
    #endif
 	//here goes actual drawing code
     //flip this CCW/CW to see other side of bunny for now
@@ -306,15 +308,14 @@ void display_cb(void)
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
-//	glScalef(5,5,5);
+	glScalef(2,2,2);
 
    // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
     
-    glDrawArrays(GL_TRIANGLE_STRIP,0,3*3*bunny.amount_of_faces);
-
+    glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
 
 	glFlush();
 	glutSwapBuffers();

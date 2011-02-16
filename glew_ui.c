@@ -106,7 +106,7 @@ void update_modelview(){
     (mod.camera_x + mod.lookat_x), (mod.camera_y+mod.lookat_y), (mod.camera_z+
     mod.lookat_z),
     mod.up_x, mod.up_y, mod.up_z);
-    print_modelview();
+//    print_modelview();
     display_cb(); //remove later
 }
 

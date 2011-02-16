@@ -48,6 +48,13 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 
 void calc_normal(float * first, float * second, float * third, 
     float * returnme){
+    #ifdef DEBUG
+/*        printf("vectors [%f,%f,%f][%f,%f,%f][%f,%f,%f]", 
+        first[1],first[2],first[3],
+        second[1],second[2],second[3],
+        third[1],third[2],third[3]);*/
+    #endif
+    
     float v1[3];
     float v2[3];
     float *r = returnme;
@@ -70,6 +77,10 @@ void calc_normal(float * first, float * second, float * third,
     r[0] = r[0]/normalization;
     r[1] = r[1]/normalization;
     r[2] = r[2]/normalization;
+
+#ifdef DEBUG
+//    printf("and their normal is [%f,%f,%f]",r[0], r[1], r[2]);
+#endif
 }
 
 // see here for reading indices & computing normals for every vertex
@@ -117,7 +128,7 @@ bunny.amount_of_vertices,
     //create vertex table for pushing into OpenGL
     //float * vertices;
     //observe that table is 1-dimensional
-    bunny.vertices = malloc(3*bunny.amount_of_vertices*sizeof(float*));
+    bunny.vertices = malloc(3*bunny.amount_of_vertices*sizeof(float));
     for(i = 0; i < bunny.amount_of_vertices; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
         {
@@ -125,6 +136,10 @@ bunny.amount_of_vertices,
             bunny.vertices[3*i] = x;
             bunny.vertices[(3*i)+1] = y;
             bunny.vertices[(3*i)+2] = z;
+#ifdef DEBUG
+            if (i == 1656)
+            printf("read vertex %i :%f, %f, %f\n",i, x, y, z);
+#endif
         }
     }
 
@@ -132,6 +147,7 @@ bunny.amount_of_vertices,
 //    bunny.faces = (int *) malloc(bunny.amount_of_faces*sizeof(int*));
     //faces_indices is two dimensional array with [face_index][vertex_index]
     bunny.faces_indices = (int *) malloc(bunny.amount_of_faces*3*sizeof(int));
+    bunny.normals = malloc(3*bunny.amount_of_faces*sizeof(float));
     int amount_of_face_indices;
     int a, b, c;
     //int vertex_index;
@@ -140,9 +156,40 @@ bunny.amount_of_vertices,
         if (amount_of_face_indices == 3) //we're only interested in triangels
         {
             bunny.faces_indices[3*i] = a;      
-            bunny.faces_indices[3*i+1] = b;      
-            bunny.faces_indices[3*i+2] = c;      
-        }
+            bunny.faces_indices[(3*i)+1] = b;      
+            bunny.faces_indices[(3*i)+2] = c;      
+            
+            float v1[3]=
+            {bunny.vertices[a],bunny.vertices[a+1],bunny.vertices[a+2]};
+            float v2[3] =
+            {bunny.vertices[b],bunny.vertices[b+1],bunny.vertices[b+2]};
+            float v3[3] =
+            {bunny.vertices[c],bunny.vertices[c+1],bunny.vertices[c+2]};
+#ifdef DEBUG
+            if (i < 50)
+            {
+                printf("%i, %i, %i\n", a, b, c);
+           printf("v1 %f, %f, %f \n", v1[0], v1[1], v1[2]); 
+           printf("v2 %f, %f, %f \n", v2[0], v2[1], v2[2]); 
+           printf("v3 %f, %f, %f \n", v3[0], v3[1], v3[2]); 
+            }
+#endif
+
+            float res[3];
+            calc_normal(v1, v2, v3, res);
+            //todo, here could be a test to see if normal is "right"
+            //then we could just flip everything else as well
+            //apparently flipping v2 and v3 is sufficient
+
+            bunny.normals[a] = res[0];
+            bunny.normals[a+1] = res[1];
+            bunny.normals[a+2] = res[2];
+            //where should we put this?
+#ifdef DEBUG
+            if (i < 50)
+           printf("result %f, %f, %f \n", res[0], res[1], res[2]); 
+#endif
+            }
          else {
             
         fprintf(stderr, "error, bad index data: not triangle!");    
@@ -150,46 +197,13 @@ bunny.amount_of_vertices,
 
     }
     
-    bunny.normals = malloc(3*bunny.amount_of_faces*sizeof(float));
 
         #ifdef DEBUG
         printf("printing some normals");
 #endif
     for (i = 0; i < bunny.amount_of_faces; i++)
     {
-        int i1 = bunny.faces_indices[3*i];
-        int i2 = bunny.faces_indices[3*i+1];
-        int i3 = bunny.faces_indices[3*i+2];
-        
-        float v1[3]=
-        {bunny.vertices[i1],bunny.vertices[i1+1],bunny.vertices[i1+2]};
-        float v2[3] =
-        {bunny.vertices[i2],bunny.vertices[i2+1],bunny.vertices[i2+2]};
-        float v3[3] =
-        {bunny.vertices[i3],bunny.vertices[i3+1],bunny.vertices[i3+2]};
-
-        float res[3];
-        calc_normal(v1, v2, v3, res);
-        //todo, here could be a test to see if normal is "right"
-        //then we could just flip everything else as well
-        //apparently flipping v2 and v3 is sufficient
-
-        bunny.vertices[i1] = res[0];
-        bunny.vertices[i1+1] = res[1];
-        bunny.vertices[i1+2] = res[2];
- 
-        bunny.vertices[i2] = res[0];
-        bunny.vertices[i2+1] = res[1];
-        bunny.vertices[i2+2] = res[2];
- 
-        bunny.vertices[i3] = res[0];
-        bunny.vertices[i3+1] = res[1];
-        bunny.vertices[i3+2] = res[2];
-#ifdef DEBUG
-        if (i < 20)
-       printf("%f, %f, %f \n", res[0], res[1], res[2]); 
-#endif
-    }
+   }
 
     fclose(ply); //close file
 
