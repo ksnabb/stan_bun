@@ -2,8 +2,7 @@
 typedef struct {
     float * vertices;
     int amount_of_vertices;
-    int * faces;
-    int ** faces_indices;
+    int * faces_indices;
     int amount_of_faces;
     float * normals;
 } ply_object;
@@ -13,6 +12,8 @@ typedef struct {
     float aspect;
     float near;
     float far;
+    int width;
+    int height;
 
 } projection_data;
 
@@ -35,6 +36,14 @@ typedef struct {
     float angle;
 
 } modelview_data;
+
+typedef struct {
+    int width;
+    int height;
+    int foo;
+
+} img_data;
+
 
 
 //util.c

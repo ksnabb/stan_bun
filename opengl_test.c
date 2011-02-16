@@ -23,65 +23,9 @@ ply_object bunny;
 projection_data proj;
 modelview_data mod;
 
-
-//ToDo, enable Z-buffering at some point
-int main (int argc, char **argv)
-{
-    #ifdef DEBUG
-    printf("starting main function\n");
-    #endif
-
-
-	//initialize glut, create a window
-    glutInit (&argc, argv);
-     
-    glutInitDisplayMode (GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
-	glutInitWindowSize (600, 600);
-    glutCreateWindow ("OpenGL Test");
-	
-    //glewinit error reporting straight from glew example
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
-    {
-      /* Problem: glewInit failed, something is seriously wrong. */
-      fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-      
-    }
-    fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));  
-        
-    printf ("Supported OpenGL version: %s\n",
-	glGetString (GL_VERSION));
-	glutKeyboardFunc(keyb_cb);
-	glutMotionFunc(mouse_motion_cb);
-	glutSpecialFunc(sp_keyb_cb);
-    glutTimerFunc(1000, timer_cb, 0);
-    glutReshapeFunc(window_resize_cb);
-
-    //initialize modelview and projection matrices
-    mod.camera_x = 0.0;
-    mod.camera_y = 0.0;
-    mod.camera_z = 0.0;
-    mod.lookat_x = 0.0;
-    
-    mod.lookat_y = 0.0;
-    mod.lookat_z = -1.0;
-    mod.up_x = 0.0;
-    mod.up_y = 1.0;
-    mod.up_z = 0.0;
-
-    mod.angle = 0.0;
-
-    proj.fovy = 45;
-    proj.aspect = 1.0;
-    proj.near = 1;
-    proj.far = 1000;
-   
-    update_projection();
-    update_modelview();
-    
-    // load shaders
-    
-    #ifdef DEBUG
+//sets, loads and whatnot shaders
+void set_shaders(){
+     #ifdef DEBUG
     printf("starting to load shaders\n");
     #endif
     GLuint f, v;
@@ -166,6 +110,69 @@ int main (int argc, char **argv)
     glUseProgram (p);
 
     
+    
+}
+
+//ToDo, enable Z-buffering at some point
+int main (int argc, char **argv)
+{
+    #ifdef DEBUG
+    printf("starting main function\n");
+    #endif
+
+
+	//initialize glut, create a window
+    glutInit (&argc, argv);
+     
+    glutInitDisplayMode (GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
+	glutInitWindowSize (600, 600);
+    glutCreateWindow ("OpenGL Test");
+	
+    //glewinit error reporting straight from glew example
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+      /* Problem: glewInit failed, something is seriously wrong. */
+      fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+      
+    }
+    fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));  
+        
+    printf ("Supported OpenGL version: %s\n",
+	glGetString (GL_VERSION));
+	glutKeyboardFunc(keyb_cb);
+	glutMotionFunc(mouse_motion_cb);
+	glutSpecialFunc(sp_keyb_cb);
+    glutTimerFunc(1000, timer_cb, 0);
+    glutReshapeFunc(window_resize_cb);
+
+    //initialize modelview and projection matrices
+    mod.camera_x = 0.0;
+    mod.camera_y = 0.0;
+    mod.camera_z = 0.0;
+    mod.lookat_x = 0.0;
+    
+    mod.lookat_y = 0.0;
+    mod.lookat_z = -1.0;
+    mod.up_x = 0.0;
+    mod.up_y = 1.0;
+    mod.up_z = 0.0;
+
+    mod.angle = 0.0;
+    proj.height = 600;
+    proj.width = 600;
+
+    proj.fovy = 45;
+    proj.aspect = 1.0;
+    proj.near = 1;
+    proj.far = 1000;
+   
+    update_projection();
+    update_modelview();
+    
+    // load shaders
+    set_shaders(); 
+   
     #ifdef DEBUG
     printf("beginning read from file.\n");
     #endif
@@ -192,56 +199,49 @@ int main (int argc, char **argv)
     unsigned int number_of_arrays = 1;
     glGenVertexArrays (number_of_arrays, &vertex_array_object_ID);
     glBindVertexArray (vertex_array_object_ID);
+    
     vertex_ID = vertex_array_object_ID;
 
     
-    unsigned int vertex_buffer_object_ID[2];
+    unsigned int vertex_buffer_object_ID[3];
     unsigned int number_of_buffers = 2;
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
             
     unsigned int elements_per_vertex = 3;
-//    unsigned int elements_per_triangle = 3 * elements_per_vertex;
+
+    unsigned int elements_per_triangle = 3 * elements_per_vertex;
     //this monster actually binds data
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[0]);
     glBufferData (GL_ARRAY_BUFFER, 
         elements_per_vertex* bunny.amount_of_vertices * sizeof (float), 
-        bunny.vertices,
-        GL_STATIC_DRAW);
-    
-    
-    //count the bunny triangle indices
-    int i;
-    int j;
-    int indices_amount = 0;
-    for(i = 0; i < bunny.amount_of_faces; i++) {
-        indices_amount = indices_amount + bunny.faces[i];
-    }
-    printf("indices amount %i \n", indices_amount);
-    bunny_indices = (int *) malloc(indices_amount * sizeof(int*));
-    
-    for(i=0; i < bunny.amount_of_faces; i++) {
-        int lim = bunny.faces[i];
-        if(lim == 3) {
-            for(j=0; j < lim; j++) {
-                bunny_indices[i * 3 + j] = bunny.faces_indices[i][j]; 
-            }
-        }
-    }
-    
-    //adding the indices to buffer
-    
-    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
-        sizeof (bunny_indices),
-        bunny_indices,
-        GL_STATIC_READ);
-    
-
-    int vertex_position_location = 0;
+        bunny.vertices, GL_STATIC_DRAW);
+ 
+ int vertex_position_location = 0;
     glBindAttribLocation(p, vertex_position_location, "vertex_Position");
 
     glVertexAttribPointer (vertex_position_location, elements_per_vertex,
         GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray (vertex_position_location);
+
+
+ //adding the indices to buffer
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_ID[1]); 
+    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
+        bunny.amount_of_faces*3*sizeof(int),
+        bunny.faces_indices,
+        GL_STATIC_READ);
+    //normal buffer
+    unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
+
+    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
+    glBufferData(GL_ARRAY_BUFFER, 
+    elements_per_triangle*bunny.amount_of_faces,bunny.normals,
+    GL_STATIC_DRAW);
+    glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
+    GL_FALSE, 0,0);
+    glEnableVertexAttribArray(location_normal);
+    
+
 
 
     #ifdef DEBUG
@@ -279,13 +279,30 @@ void display_cb(void)
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
-    
-    glBindVertexArray (vertex_ID);
-
+    #ifdef DEBUG
+    printf("modelview_matrix\n");
+    for (int i = 0; i < 16; i++)
+    {
+        printf("%f, ", mv[i]);
+        if((i+1)%4 == 0)
+            printf("\n");
+    }
+    printf("projection_matrix\n");
+    for (int i = 0; i < 16; i++)
+    {
+        printf("%f, ", mp[i]);
+        if((i+1)%4 == 0)
+            printf("\n");
+    } 
+ 
+   #endif
 	//here goes actual drawing code
-	glFrontFace(GL_CW);
+    //flip this CCW/CW to see other side of bunny for now
+	glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
+
+    glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
 //	glScalef(5,5,5);
@@ -295,105 +312,12 @@ void display_cb(void)
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
     
-    glDrawElements(GL_TRIANGLES, bunny.amount_of_faces, GL_UNSIGNED_INT, bunny_indices);
-
-	glFrontFace(GL_CCW);
+    glDrawArrays(GL_TRIANGLE_STRIP,0,3*3*bunny.amount_of_faces);
 
 
 	glFlush();
 	glutSwapBuffers();
 
 }
-/*
-void mouse_motion_cb(int x, int y)
-{
-	printf("mouse moved x: %i, y: %i\n", x, y);
-    
-}
-
-void keyb_cb(unsigned char key, int x, int y)
-{
-	printf("keyboard key pushed %c\n", key );
-}
-
-void move_camera(int direction){
-    mod.camera_x = mod.camera_x + direction*(mod.lookat_x)*MOVE_STEP;    
-    mod.camera_z = mod.camera_z +  direction*(mod.lookat_z)*MOVE_STEP;    
-    update_modelview();
-}
-
-
-void rotate_camera(float angle){
-    mod.lookat_x = sin(angle) ;    
-    mod.lookat_z = -1.0f*cos(angle) ;   
-    update_modelview();
-}
-
-
-
-void sp_keyb_cb(int key, int x, int y)
-{
-    switch(key)
-    {
-    case(GLUT_KEY_UP):
-        printf("forward key pressed\n");
-        move_camera(1);
-        break;
-    case (GLUT_KEY_DOWN):
-        printf("backward key pressed\n"); 
-        move_camera(-1);
-        break;
-    case (GLUT_KEY_LEFT):
-        printf("left key pressed\n"); 
-        mod.angle += -0.1 ;
-        rotate_camera(mod.angle);
-        break;
-    case (GLUT_KEY_RIGHT):
-        printf("right key pressed\n"); 
-        mod.angle += 0.1 ;
-        rotate_camera(mod.angle);
-        break; 
-    }
-
-}
-
-
-
-void timer_cb(int value){
-//    display_cb();
-    }
-
-void window_resize_cb(int width, int height){
-    //int old_height, old_width;
-    //old_height = 2*proj.near*sin(proj.fovy);
-    //old_width = old_height*proj.aspect;
-    printf("resize window cb called\n");
-    float ratio = width / height;
-    proj.aspect = ratio;
-
-    proj.fovy = asin((height/2)/proj.near);
-    update_projection();
-    glViewport(0,0,width, height);
-    }
-
-
-void update_modelview(){
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(mod.camera_x, mod.camera_y, mod.camera_z,
-    (mod.camera_x + mod.lookat_x), (mod.camera_y+mod.lookat_y), (mod.camera_z+
-    mod.lookat_z),
-    mod.up_x, mod.up_y, mod.up_z);
-    display_cb(); //remove later
-}
-
-void update_projection(){
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(proj.fovy, proj.aspect, proj.near, proj.far);
-    display_cb();
-    }
-
-*/
-    
+   
     

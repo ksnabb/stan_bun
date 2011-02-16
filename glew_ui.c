@@ -39,8 +39,8 @@ void move_camera(int direction){
 
 
 void rotate_camera(float angle){
-    mod.lookat_x = sin(angle) ;
-    mod.lookat_z = -1.0f*cos(angle) ;
+    mod.lookat_z = sin(angle) ;
+    mod.lookat_x = -1.0f*cos(angle) ;
     update_modelview();
 }
 
@@ -58,12 +58,12 @@ void sp_keyb_cb(int key, int x, int y)
         break;
     case (GLUT_KEY_LEFT):
         printf("left key pressed\n");
-        mod.angle += -0.1 ;
+        mod.angle += 0.1 ;
         rotate_camera(mod.angle);
         break;
     case (GLUT_KEY_RIGHT):
         printf("right key pressed\n");
-        mod.angle += 0.1 ;
+        mod.angle -= 0.1 ;
         rotate_camera(mod.angle);
         break;
     }
@@ -92,6 +92,13 @@ void window_resize_cb(int width, int height){
 }
 
 
+void print_modelview(){
+    printf("camera location: x %f y %f z %f\n", mod.camera_x, mod.camera_y,
+    mod.camera_z);
+    printf("eye direction: x %f y %f z %f\n", mod.lookat_x, mod.lookat_y,
+    mod.lookat_z);
+    }
+
 void update_modelview(){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -99,12 +106,14 @@ void update_modelview(){
     (mod.camera_x + mod.lookat_x), (mod.camera_y+mod.lookat_y), (mod.camera_z+
     mod.lookat_z),
     mod.up_x, mod.up_y, mod.up_z);
+    print_modelview();
     display_cb(); //remove later
 }
 
 void update_projection(){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    glViewport(0,0, proj.width, proj.height);
     gluPerspective(proj.fovy, proj.aspect, proj.near, proj.far);
     display_cb();
     }

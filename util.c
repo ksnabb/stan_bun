@@ -46,6 +46,32 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 }
 
 
+void calc_normal(float * first, float * second, float * third, 
+    float * returnme){
+    float v1[3];
+    float v2[3];
+    float *r = returnme;
+    float normalization;
+    //compute vectors
+    v1[0] = first[0] - second[0];
+    v1[1] = first[1] - second[1];
+    v1[2] = first[2] - second[2];
+
+    v2[0] = first[0] - third[0];
+    v2[1] = first[1] - third[1];
+    v2[2] = first[2] - third[2];
+
+    //cross product
+    r[0] = v1[1]*v2[2]- v2[1]*v1[2];
+    r[1] = v2[0]*v1[2] - v1[0]*v2[2];
+    r[2] = v1[0]*v2[1]- v2[0]*v1[1];
+
+    normalization = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
+    r[0] = r[0]/normalization;
+    r[1] = r[1]/normalization;
+    r[2] = r[2]/normalization;
+}
+
 // see here for reading indices & computing normals for every vertex
 // http://openglsamples.sourceforge.net/files/glut_ply.cpp
 // Saves the information from the file given to the bunny ply_object
@@ -103,26 +129,60 @@ bunny.amount_of_vertices,
     }
 
     //read the faces
-    bunny.faces = (int *) malloc(bunny.amount_of_faces*sizeof(int*));
+//    bunny.faces = (int *) malloc(bunny.amount_of_faces*sizeof(int*));
     //faces_indices is two dimensional array with [face_index][vertex_index]
-    bunny.faces_indices = (int **) malloc(bunny.amount_of_faces*sizeof(int*));
+    bunny.faces_indices = (int *) malloc(bunny.amount_of_faces*3*sizeof(int));
     int amount_of_face_indices;
-    int vertex_index;
+    int a, b, c;
+    //int vertex_index;
     for(i = 0; i < bunny.amount_of_faces; i++) {
-        fscanf (ply, "%i", &amount_of_face_indices);
-
-        bunny.faces[i] = amount_of_face_indices;
-
-        //allocate memory for the amount of vertex indexes that the face
-        //includes
-        bunny.faces_indices[i] = (int *) malloc(amount_of_face_indices *
-sizeof(int *));
-
-        int j;
-        for(j = 0; j < amount_of_face_indices; j++) {
-            fscanf(ply, "%i", &vertex_index);
-            bunny.faces_indices[i][j] = vertex_index;
+        fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
+        if (amount_of_face_indices == 3) //we're only interested in triangels
+        {
+            bunny.faces_indices[3*i] = a;      
+            bunny.faces_indices[3*i+1] = b;      
+            bunny.faces_indices[3*i+2] = c;      
         }
+         else {
+            
+        fprintf(stderr, "error, bad index data: not triangle!");    
+        }
+
+    }
+    
+    bunny.normals = malloc(3*bunny.amount_of_faces*sizeof(float));
+
+    for (i = 0; i < bunny.amount_of_faces; i++)
+    {
+        int i1 = bunny.faces_indices[3*i];
+        int i2 = bunny.faces_indices[3*i+1];
+        int i3 = bunny.faces_indices[3*i+2];
+        
+        float v1[3]=
+        {bunny.vertices[i1],bunny.vertices[i1+1],bunny.vertices[i1+2]};
+        float v2[3] =
+        {bunny.vertices[i2],bunny.vertices[i2+1],bunny.vertices[i2+2]};
+        float v3[3] =
+        {bunny.vertices[i3],bunny.vertices[i3+1],bunny.vertices[i3+2]};
+
+        float res[3];
+        calc_normal(v1, v2, v3, res);
+        //todo, here could be a test to see if normal is "right"
+        //then we could just flip everything else as well
+        //apparently flipping v2 and v3 is sufficient
+
+        bunny.vertices[3*i1] = res[0];
+        bunny.vertices[3*i1+1] = res[1];
+        bunny.vertices[3*i1+2] = res[2];
+ 
+        bunny.vertices[3*i2] = res[0];
+        bunny.vertices[3*i2+1] = res[1];
+        bunny.vertices[3*i2+2] = res[2];
+ 
+        bunny.vertices[3*i3] = res[0];
+        bunny.vertices[3*i3+1] = res[1];
+        bunny.vertices[3*i3+2] = res[2];
+        
     }
 
     fclose(ply); //close file
