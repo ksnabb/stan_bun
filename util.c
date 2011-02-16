@@ -152,6 +152,9 @@ bunny.amount_of_vertices,
     
     bunny.normals = malloc(3*bunny.amount_of_faces*sizeof(float));
 
+        #ifdef DEBUG
+        printf("printing some normals");
+#endif
     for (i = 0; i < bunny.amount_of_faces; i++)
     {
         int i1 = bunny.faces_indices[3*i];
@@ -171,18 +174,21 @@ bunny.amount_of_vertices,
         //then we could just flip everything else as well
         //apparently flipping v2 and v3 is sufficient
 
-        bunny.vertices[3*i1] = res[0];
-        bunny.vertices[3*i1+1] = res[1];
-        bunny.vertices[3*i1+2] = res[2];
+        bunny.vertices[i1] = res[0];
+        bunny.vertices[i1+1] = res[1];
+        bunny.vertices[i1+2] = res[2];
  
-        bunny.vertices[3*i2] = res[0];
-        bunny.vertices[3*i2+1] = res[1];
-        bunny.vertices[3*i2+2] = res[2];
+        bunny.vertices[i2] = res[0];
+        bunny.vertices[i2+1] = res[1];
+        bunny.vertices[i2+2] = res[2];
  
-        bunny.vertices[3*i3] = res[0];
-        bunny.vertices[3*i3+1] = res[1];
-        bunny.vertices[3*i3+2] = res[2];
-        
+        bunny.vertices[i3] = res[0];
+        bunny.vertices[i3+1] = res[1];
+        bunny.vertices[i3+2] = res[2];
+#ifdef DEBUG
+        if (i < 20)
+       printf("%f, %f, %f \n", res[0], res[1], res[2]); 
+#endif
     }
 
     fclose(ply); //close file

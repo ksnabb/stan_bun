@@ -1,3 +1,5 @@
+#define DEBUG
+
 //describes the information in a ply file
 typedef struct {
     float * vertices;

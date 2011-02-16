@@ -101,7 +101,7 @@ void set_shaders(){
 // run shaders
 
     #ifdef DEBUG
-    printf("compiled. running shaders.\n");
+    printf("compiled.any errors are above. running shaders.\n");
     #endif
     
     glAttachShader (p, v);
@@ -233,13 +233,14 @@ int main (int argc, char **argv)
     //normal buffer
     unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
 
+    glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
+    GL_FALSE, 0,0);
+    glEnableVertexAttribArray(location_normal);
+    
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
     glBufferData(GL_ARRAY_BUFFER, 
     elements_per_triangle*bunny.amount_of_faces,bunny.normals,
     GL_STATIC_DRAW);
-    glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
-    GL_FALSE, 0,0);
-    glEnableVertexAttribArray(location_normal);
     
 
 
