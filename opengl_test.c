@@ -163,7 +163,7 @@ int main (int argc, char **argv)
     proj.fovy = 45;
     proj.aspect = 1.0;
     proj.near = 1;
-    proj.far = 1000;
+    proj.far = 2000;
     
    
     update_projection();
