@@ -67,6 +67,7 @@ void keyb_cb(unsigned char key, int x, int y);
 void sp_keyb_cb(int key, int x, int y);
 void mouse_motion_cb(int x, int y);
 void mouse_cb(int button, int state, int x, int y);
+void mouse_cb(int button, int state, int x, int y);
 void timer_cb(int unused);
 void window_resize_cb(int width, int height);
 void update_modelview();

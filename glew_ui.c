@@ -22,10 +22,58 @@ float MOVE_STEP = 0.1;
 
 
 
+void mouse_cb(int button, int state, int x, int y)
+{
+    printf("mouse wheel moved %i %i %i %i\n", button, state, x, y);
+    switch(button)
+    {
+    case(3):
+        glMatrixMode(GL_MODELVIEW);
+        glScalef(1.1,1.1,1.1);
+        display_cb();
+        break;
+    case(4):
+        glMatrixMode(GL_MODELVIEW);
+        glScalef(0.9,0.9,0.9);
+        display_cb();
+        break;
+    }
+}
+
+int prev_x = -1;
+int prev_y = -1;
+
 void mouse_motion_cb(int x, int y)
 {
     printf("mouse moved x: %i, y: %i\n", x, y);
-
+    
+    if(prev_x == -1 && prev_y == -1) {
+        prev_x = x;
+        prev_y = y;
+    } else {
+        if((prev_x - x) < 0) {
+            glMatrixMode(GL_MODELVIEW);
+            glRotatef(10,0,1,0);
+            display_cb();
+        } else {
+            glMatrixMode(GL_MODELVIEW);
+            glRotatef(-10,0,1,0);
+            display_cb();
+        }
+        
+        if((prev_y - y) < 0) {
+            glMatrixMode(GL_MODELVIEW);
+            glRotatef(10,1,0,0);
+            display_cb();
+        } else {
+            glMatrixMode(GL_MODELVIEW);
+            glRotatef(-10,1,0,0);
+            display_cb();
+        }
+        
+        prev_x = -1;
+        prev_y = -1;
+    }
 }
 
 void keyb_cb(unsigned char key, int x, int y)

@@ -140,6 +140,7 @@ int main (int argc, char **argv)
 	glGetString (GL_VERSION));
 	glutKeyboardFunc(keyb_cb);
 	glutMotionFunc(mouse_motion_cb);
+	glutMouseFunc(mouse_cb);
 	glutSpecialFunc(sp_keyb_cb);
     glutTimerFunc(1000, timer_cb, 0);
     glutReshapeFunc(window_resize_cb);
