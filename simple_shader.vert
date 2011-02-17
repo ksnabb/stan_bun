@@ -12,7 +12,6 @@ void main (void)
 gl_Position = projection_matrix * modelview_matrix * vec4 (vertex_position, 1.0);
 //fragment_normal = (modelview_matrix *vec4(vertex_normal, 0.0)).xyz;
 my_Color = vec4(1.0,0.0,0.0,0.0);
-//gl_Position = ftransform();
 }
 
 
