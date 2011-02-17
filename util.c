@@ -199,8 +199,7 @@ bunny.amount_of_vertices,
             //where should we put this?
 #ifdef DEBUG
 //            if (i < 50)
-//           printf("result %f, %f, %f \n", res[0], res[1], res[2]); 
-            
+//           printf("result %f, %f, %f \n", res[0], res[1], res[2]);  
 #endif
             }
          else {

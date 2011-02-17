@@ -241,7 +241,7 @@ int main (int argc, char **argv)
  
     //adding the indices to buffer
     //glBindVertexArray (vertex_array_object_ID[2]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_ID[2]); 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_ID[0]); 
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
         bunny.amount_of_faces*3*sizeof(int),
         bunny.faces_indices,
@@ -327,7 +327,7 @@ void display_cb(void)
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
-	glScalef(5,5,5);
+	glScalef(1.5,1.5,1.5);
 
    // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;
