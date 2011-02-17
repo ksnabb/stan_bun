@@ -119,7 +119,7 @@ void timer_cb(int value){
 //resizes window
 //perhaps maintain aspect and limit fov to get biggest posible pic?
 void window_resize_cb(int width, int height){
-  /*  
+ 
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window of zero width).
 	if(height == 0)
@@ -141,11 +141,11 @@ void window_resize_cb(int width, int height){
 	gluLookAt(0.0,0.0,5.0, 
 		      0.0,0.0,-1.0,
 			  0.0f,1.0f,0.0f);
-*/
+
     //int old_height, old_width;
     //old_height = 2*proj.near*sin(proj.fovy);
     //old_width = old_height*proj.aspect;
-   
+   /*
     printf("resize window cb called\n");
     float ratio = width / height;
     proj.aspect = ratio;
@@ -153,6 +153,7 @@ void window_resize_cb(int width, int height){
     proj.fovy = asin((height/2)/proj.near);
     update_projection();
     glViewport(0,0,width, height);
+    */
     
 }
 
