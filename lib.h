@@ -46,7 +46,15 @@ typedef struct {
 
 } img_data;
 
-
+typedef struct {
+    float dx;
+    float dy;
+    float dz;
+    float nx;
+    float ny;
+    float nz;
+    
+} vertex_data;
 
 //util.c
 GLchar * simple_fileread(char * file_name, GLint * length);

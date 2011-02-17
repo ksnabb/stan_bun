@@ -137,8 +137,8 @@ bunny.amount_of_vertices,
             bunny.vertices[(3*i)+1] = y;
             bunny.vertices[(3*i)+2] = z;
 #ifdef DEBUG
-            if (i == 1656)
-            printf("read vertex %i :%f, %f, %f\n",i, x, y, z);
+//          if (i == 1656)
+//            printf("read vertex %i :%f, %f, %f\n",i, x, y, z);
 #endif
         }
     }
@@ -168,10 +168,10 @@ bunny.amount_of_vertices,
 #ifdef DEBUG
             if (i < 50)
             {
-                printf("%i, %i, %i\n", a, b, c);
-           printf("v1 %f, %f, %f \n", v1[0], v1[1], v1[2]); 
-           printf("v2 %f, %f, %f \n", v2[0], v2[1], v2[2]); 
-           printf("v3 %f, %f, %f \n", v3[0], v3[1], v3[2]); 
+//                printf("%i, %i, %i\n", a, b, c);
+//           printf("v1 %f, %f, %f \n", v1[0], v1[1], v1[2]); 
+//           printf("v2 %f, %f, %f \n", v2[0], v2[1], v2[2]); 
+//           printf("v3 %f, %f, %f \n", v3[0], v3[1], v3[2]); 
             }
 #endif
 
@@ -184,11 +184,22 @@ bunny.amount_of_vertices,
             bunny.normals[a] = res[0];
             bunny.normals[a+1] = res[1];
             bunny.normals[a+2] = res[2];
-            
+
+            bunny.normals[b] = res[0];
+            bunny.normals[b+1] = res[1];
+            bunny.normals[b+2] = res[2];
+
+
+            bunny.normals[c] = res[0];
+            bunny.normals[c+1] = res[1];
+            bunny.normals[c+2] = res[2];
+
+
+
             //where should we put this?
 #ifdef DEBUG
-            if (i < 50)
-           printf("result %f, %f, %f \n", res[0], res[1], res[2]);
+//            if (i < 50)
+//           printf("result %f, %f, %f \n", res[0], res[1], res[2]);  
 #endif
             }
          else {

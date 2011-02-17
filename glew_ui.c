@@ -1,6 +1,6 @@
 /*
- * Functions that use GLEW to create the ui and manipulate the view
- */
+* Functions that use GLEW to create the ui and manipulate the view
+*/
 
 //today I'm lazy with the includes, some may not be necessary
 #include <GL/glew.h>
@@ -33,7 +33,7 @@ void keyb_cb(unsigned char key, int x, int y)
 
 void move_camera(int direction){
     mod.camera_x = mod.camera_x + direction*(mod.lookat_x)*MOVE_STEP;
-    mod.camera_z = mod.camera_z +  direction*(mod.lookat_z)*MOVE_STEP;
+    mod.camera_z = mod.camera_z + direction*(mod.lookat_z)*MOVE_STEP;
     update_modelview();
 }
 
@@ -73,34 +73,23 @@ void sp_keyb_cb(int key, int x, int y)
 
 
 void timer_cb(int value){
-//    display_cb();
+// display_cb();
     }
 
 //resizes window
 //perhaps maintain aspect and limit fov to get biggest posible pic?
 void window_resize_cb(int width, int height){
-	// Prevent a divide by zero, when window is too short
-	// (you cant make a window of zero width).
-	if(height == 0)
-		height = 1;
 
-	float ratio = 1.0* width / height;
+    //int old_height, old_width;
+    //old_height = 2*proj.near*sin(proj.fovy);
+    //old_width = old_height*proj.aspect;
+    printf("resize window cb called\n");
+    float ratio = width / height;
+    proj.aspect = ratio;
 
-	// Reset the coordinate system before modifying
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	// Set the viewport to be the entire window
-	glViewport(0, 0, width, height);
-
-	// Set the correct perspective.
-	gluPerspective(45,ratio,1,1000);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0.0,0.0,5.0, 
-		      0.0,0.0,-1.0,
-			  0.0f,1.0f,0.0f);
-
+    proj.fovy = asin((height/2)/proj.near);
+    update_projection();
+    glViewport(0,0,width, height);
 }
 
 
@@ -118,7 +107,7 @@ void update_modelview(){
     (mod.camera_x + mod.lookat_x), (mod.camera_y+mod.lookat_y), (mod.camera_z+
     mod.lookat_z),
     mod.up_x, mod.up_y, mod.up_z);
-//    print_modelview();
+// print_modelview();
     display_cb(); //remove later
 }
 
@@ -129,6 +118,7 @@ void update_projection(){
     gluPerspective(proj.fovy, proj.aspect, proj.near, proj.far);
     display_cb();
     }
+
 
 
 
