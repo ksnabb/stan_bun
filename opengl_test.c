@@ -192,7 +192,6 @@ int main (int argc, char **argv)
     printf("read file %s that had \n%i vertices and \n%i faces.\n",
     filename, bunny.amount_of_vertices, bunny.amount_of_faces);
     
-    
     //lecture example
     //using objects instead of nice old GL_vertex-calls :)
     unsigned int vertex_array_object_ID;
@@ -235,16 +234,14 @@ int main (int argc, char **argv)
     //normal buffer
     unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
 
+    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
+    glBufferData(GL_ARRAY_BUFFER, 
+        elements_per_triangle*bunny.amount_of_faces,
+        bunny.normals,
+        GL_STATIC_DRAW);
     glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
         GL_FALSE, 0,0);
     glEnableVertexAttribArray(location_normal);
-    
-    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
-    glBufferData(GL_ARRAY_BUFFER, 
-        elements_per_triangle*bunny.amount_of_faces,bunny.normals,
-        GL_STATIC_DRAW);
-    
-
 
 
     #ifdef DEBUG
@@ -304,6 +301,7 @@ void display_cb(void)
 	glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
+    //glEnable(GL_SMOOTH);
 
     glBindVertexArray (vertex_ID);
 
