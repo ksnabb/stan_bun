@@ -12,6 +12,6 @@ void main (void)
     n = normalize (fragment_normal);
     ndotl = max (dot(n, light_direction), 0.0);
 
-    fragment_Color = fragment_diffuse*ndotl;
+    fragment_Color = fragment_diffuse*ndotl + my_Color;
 }
 
