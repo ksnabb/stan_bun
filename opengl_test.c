@@ -191,7 +191,6 @@ int main (int argc, char **argv)
     printf("read file %s that had \n%i vertices and \n%i faces.\n",
     filename, bunny.amount_of_vertices, bunny.amount_of_faces);
     
-    
     //lecture example
     //using objects instead of nice old GL_vertex-calls :)
     GLuint vertex_array_object_ID;
@@ -242,13 +241,12 @@ int main (int argc, char **argv)
  
     //adding the indices to buffer
     //glBindVertexArray (vertex_array_object_ID[2]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_ID[0]); 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_ID[2]); 
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
         bunny.amount_of_faces*3*sizeof(int),
         bunny.faces_indices,
         GL_STATIC_READ);
    
-
 
 
     #ifdef DEBUG
@@ -323,12 +321,13 @@ void display_cb(void)
 	glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
+    //glEnable(GL_SMOOTH);
 
  //   glBindVertexArray (vertex_ID[0]);
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
-	glScalef(1.5,1.5,1.5);
+	glScalef(5,5,5);
 
    // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;
