@@ -239,13 +239,13 @@ int main (int argc, char **argv)
     unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
 
     glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
-    GL_FALSE, 0,0);
+        GL_FALSE, 0,0);
     glEnableVertexAttribArray(location_normal);
     
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
     glBufferData(GL_ARRAY_BUFFER, 
-    elements_per_triangle*bunny.amount_of_faces,bunny.normals,
-    GL_STATIC_DRAW);
+        elements_per_triangle*bunny.amount_of_faces,bunny.normals,
+        GL_STATIC_DRAW);
     
 
 
@@ -339,9 +339,13 @@ void display_cb(void)
     glDrawElements(GL_TRIANGLES,3*bunny.amount_of_faces,
     GL_UNSIGNED_INT,bunny_indices);
 
+
+    //glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
+>>>>>>> 91683f1e19d29c57acdf6780c350a16405bd6a37
+
 	glFlush();
 	glutSwapBuffers();
 
 }
    
-    
+  
