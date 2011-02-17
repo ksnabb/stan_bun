@@ -53,21 +53,21 @@ void mouse_motion_cb(int x, int y)
     } else {
         if((prev_x - x) < 0) {
             glMatrixMode(GL_MODELVIEW);
-            glRotatef(10,0,1,0);
+            glRotatef(2,0,1,0);
             display_cb();
         } else {
             glMatrixMode(GL_MODELVIEW);
-            glRotatef(-10,0,1,0);
+            glRotatef(-2,0,1,0);
             display_cb();
         }
         
         if((prev_y - y) < 0) {
             glMatrixMode(GL_MODELVIEW);
-            glRotatef(10,1,0,0);
+            glRotatef(2,1,0,0);
             display_cb();
         } else {
             glMatrixMode(GL_MODELVIEW);
-            glRotatef(-10,1,0,0);
+            glRotatef(-2,1,0,0);
             display_cb();
         }
         
