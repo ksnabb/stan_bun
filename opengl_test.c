@@ -236,13 +236,13 @@ int main (int argc, char **argv)
     unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
 
     glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
-    GL_FALSE, 0,0);
+        GL_FALSE, 0,0);
     glEnableVertexAttribArray(location_normal);
     
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
     glBufferData(GL_ARRAY_BUFFER, 
-    elements_per_triangle*bunny.amount_of_faces,bunny.normals,
-    GL_STATIC_DRAW);
+        elements_per_triangle*bunny.amount_of_faces,bunny.normals,
+        GL_STATIC_DRAW);
     
 
 
@@ -314,12 +314,17 @@ void display_cb(void)
     //unsigned int count = elements_per_triangle * number_of_triangles;
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
-    
-    glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
+     
+    glDrawElements(GL_TRIANGLES, bunny.amount_of_faces, GL_UNSIGNED_INT, bunny_indices);
+
+    glFrontFace(GL_CCW);
+
+
+    //glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
 
 	glFlush();
 	glutSwapBuffers();
 
 }
    
-    
+  
