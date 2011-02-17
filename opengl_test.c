@@ -122,7 +122,6 @@ int main (int argc, char **argv)
 
 	//initialize glut, create a window
     glutInit (&argc, argv);
-     
     glutInitDisplayMode (GLUT_DOUBLE|GLUT_RGBA|GLUT_DEPTH);
 	glutInitWindowSize (600, 600);
     glutCreateWindow ("OpenGL Test");
@@ -148,11 +147,11 @@ int main (int argc, char **argv)
     //initialize modelview and projection matrices
     mod.camera_x = 0.0;
     mod.camera_y = 0.0;
-    mod.camera_z = 0.0;
+    mod.camera_z = -1.0;
     mod.lookat_x = 0.0;
     
     mod.lookat_y = 0.0;
-    mod.lookat_z = -1.0;
+    mod.lookat_z = 0.0;
     mod.up_x = 0.0;
     mod.up_y = 1.0;
     mod.up_z = 0.0;
@@ -165,6 +164,7 @@ int main (int argc, char **argv)
     proj.aspect = 1.0;
     proj.near = 1;
     proj.far = 1000;
+    
    
     update_projection();
     update_modelview();
@@ -327,7 +327,7 @@ void display_cb(void)
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
-	glScalef(1.5,1.5,1.5);
+	//glScalef(1.5,1.5,1.5);
 
    // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;

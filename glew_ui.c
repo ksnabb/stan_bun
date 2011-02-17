@@ -14,11 +14,13 @@
 #include <math.h>
 #include "./lib.h"
 
-
+ 
 extern projection_data proj;
 extern modelview_data mod;
 
 float MOVE_STEP = 0.1;
+
+
 
 void mouse_motion_cb(int x, int y)
 {
@@ -29,20 +31,44 @@ void mouse_motion_cb(int x, int y)
 void keyb_cb(unsigned char key, int x, int y)
 {
     printf("keyboard key pushed %c\n", key );
+    
+    switch(key)
+    {
+    case('z'): //zoom in key
+        glMatrixMode(GL_MODELVIEW);
+        glScalef(1.1,1.1,1.1);
+        display_cb();
+        break;
+    case('a'): //zoom out key
+        glMatrixMode(GL_MODELVIEW);
+        glScalef(0.9,0.9,0.9);
+        display_cb();
+        break;
+    }
 }
 
 void move_camera(int direction){
+    printf("move camera called %i\n", direction);
     mod.camera_x = mod.camera_x + direction*(mod.lookat_x)*MOVE_STEP;
     mod.camera_z = mod.camera_z + direction*(mod.lookat_z)*MOVE_STEP;
+    
+    //proj.fovy = proj.fovy * 1.1;
+    
+    //glMatrixMode(GL_PROJECTION); 
+    //glLoadIdentity();
+    //gluPerspective (proj.fovy, proj.aspect, proj.near, proj.far); 
+    
     update_modelview();
 }
 
 
 void rotate_camera(float angle){
+    printf("rotate camera called %f\n", angle);
     mod.lookat_z = sin(angle) ;
     mod.lookat_x = -1.0f*cos(angle) ;
     update_modelview();
 }
+
 
 void sp_keyb_cb(int key, int x, int y)
 {
@@ -50,26 +76,40 @@ void sp_keyb_cb(int key, int x, int y)
     {
     case(GLUT_KEY_UP):
         printf("forward key pressed\n");
-        move_camera(1);
+        glMatrixMode(GL_MODELVIEW);
+        //glScalef(1.1,1.1,1.1);
+        glRotatef(-10,1,0,0);
+        display_cb();
+        //move_camera(1);
         break;
     case (GLUT_KEY_DOWN):
         printf("backward key pressed\n");
-        move_camera(-1);
+        glMatrixMode(GL_MODELVIEW);
+        //glScalef(0.9,0.9,0.9);
+        glRotatef(10,1,0,0);
+        display_cb();
+        //display_cb();
+        //move_camera(-1);
         break;
     case (GLUT_KEY_LEFT):
         printf("left key pressed\n");
-        mod.angle += 0.1 ;
-        rotate_camera(mod.angle);
+        glMatrixMode(GL_MODELVIEW);
+        glRotatef(-10,0,1,0);
+        display_cb();
+        //mod.angle += 0.1 ;
+        //rotate_camera(mod.angle);
         break;
     case (GLUT_KEY_RIGHT):
         printf("right key pressed\n");
-        mod.angle -= 0.1 ;
-        rotate_camera(mod.angle);
+        glMatrixMode(GL_MODELVIEW);
+        glRotatef(10,0,1,0);
+        display_cb();
+        //mod.angle -= 0.1 ;
+        //rotate_camera(mod.angle);
         break;
     }
 
 }
-
 
 
 void timer_cb(int value){
@@ -79,10 +119,33 @@ void timer_cb(int value){
 //resizes window
 //perhaps maintain aspect and limit fov to get biggest posible pic?
 void window_resize_cb(int width, int height){
+  /*  
+	// Prevent a divide by zero, when window is too short
+	// (you cant make a window of zero width).
+	if(height == 0)
+		height = 1;
 
+	float ratio = 1.0* width / height;
+
+	// Reset the coordinate system before modifying
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	
+	// Set the viewport to be the entire window
+	glViewport(0, 0, width, height);
+
+	// Set the correct perspective.
+	gluPerspective(45,ratio,1,1000);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0.0,0.0,5.0, 
+		      0.0,0.0,-1.0,
+			  0.0f,1.0f,0.0f);
+*/
     //int old_height, old_width;
     //old_height = 2*proj.near*sin(proj.fovy);
     //old_width = old_height*proj.aspect;
+   
     printf("resize window cb called\n");
     float ratio = width / height;
     proj.aspect = ratio;
@@ -90,6 +153,7 @@ void window_resize_cb(int width, int height){
     proj.fovy = asin((height/2)/proj.near);
     update_projection();
     glViewport(0,0,width, height);
+    
 }
 
 
@@ -102,11 +166,13 @@ void print_modelview(){
 
 void update_modelview(){
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    //glLoadIdentity();
+    
     gluLookAt(mod.camera_x, mod.camera_y, mod.camera_z,
-    (mod.camera_x + mod.lookat_x), (mod.camera_y+mod.lookat_y), (mod.camera_z+
-    mod.lookat_z),
-    mod.up_x, mod.up_y, mod.up_z);
+        mod.lookat_x, mod.lookat_y, mod.lookat_z,
+       //(mod.camera_x + mod.lookat_x), (mod.camera_y + mod.lookat_y), (mod.camera_z + mod.lookat_z),
+        mod.up_x, mod.up_y, mod.up_z);
+    
 // print_modelview();
     display_cb(); //remove later
 }
