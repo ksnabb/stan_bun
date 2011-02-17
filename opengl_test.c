@@ -201,11 +201,14 @@ int main (int argc, char **argv)
     
     vertex_ID = vertex_array_object_ID;
 
-    
+     
     unsigned int number_of_buffers = 3;
     unsigned int vertex_buffer_object_ID[number_of_buffers];
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
-            
+    
+    unsigned int index_buffer_object_object_ID;
+
+
     unsigned int elements_per_vertex = 3;
 
     unsigned int elements_per_triangle = 3 * elements_per_vertex;
@@ -279,6 +282,21 @@ void display_cb(void)
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
+    GLfloat light_pos[3] = {0.0,1.0,0.0};
+    GLfloat light_color[4] = {0.3,1.0,0.3,1.5};
+    GLfloat material_diffuse[4] = {0.2,0.2,0.2,0.2};
+    
+    unsigned int location_light_pos = glGetUniformLocation(p,
+    "light_position");
+
+    unsigned int location_light_col = glGetUniformLocation(p, "light_color");
+    unsigned int location_material_diffuse = glGetUniformLocation(p,
+    "material_diffuse");
+
+    glUniform3fv(location_light_pos,3, light_pos);
+    glUniform4fv(location_light_col,3, light_color);
+    glUniform4fv(location_material_diffuse, 3,material_diffuse);
+    
     #ifdef DEBUG
 /*    printf("modelview_matrix\n");
     for (int i = 0; i < 16; i++)
@@ -306,19 +324,18 @@ void display_cb(void)
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
-	glScalef(2,2,2);
+	glScalef(1.5,1.5,1.5);
 
    // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;
     //ToDo switch to glDrawElements for smarter drawing
     //glDrawElements requires more stuff
-     
-    glDrawElements(GL_TRIANGLES, bunny.amount_of_faces, GL_UNSIGNED_INT, bunny_indices);
-
-    glFrontFace(GL_CCW);
-
-
+    
     //glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
+    //apparently need to use this as it is the way to draw indexed stuff
+    //perhaps that's what was wrong all along
+    glDrawElements(GL_TRIANGLES,3*bunny.amount_of_faces,
+    GL_UNSIGNED_INT,bunny_indices);
 
 	glFlush();
 	glutSwapBuffers();
