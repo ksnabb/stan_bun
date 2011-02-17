@@ -102,18 +102,6 @@ void window_resize_cb(int width, int height){
 			  0.0f,1.0f,0.0f);
 
 
-    
-    //int old_height, old_width;
-    //old_height = 2*proj.near*sin(proj.fovy);
-    //old_width = old_height*proj.aspect;
-    /*
-    printf("resize window cb called\n");
-    float ratio = width / height;
-    proj.aspect = ratio;
-
-    proj.fovy = asin((height/2)/proj.near);
-    update_projection();
-    glViewport(0,0,width, height);*/
 }
 
 
