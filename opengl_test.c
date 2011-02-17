@@ -326,7 +326,7 @@ void display_cb(void)
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
-	glScalef(2,2,2);
+	glScalef(1.5,1.5,1.5);
 
    // unsigned int offset = 0;
     //unsigned int count = elements_per_triangle * number_of_triangles;
@@ -338,10 +338,6 @@ void display_cb(void)
     //perhaps that's what was wrong all along
     glDrawElements(GL_TRIANGLES,3*bunny.amount_of_faces,
     GL_UNSIGNED_INT,bunny_indices);
-
-
-    //glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
->>>>>>> 91683f1e19d29c57acdf6780c350a16405bd6a37
 
 	glFlush();
 	glutSwapBuffers();
