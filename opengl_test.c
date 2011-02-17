@@ -13,7 +13,7 @@
 
 //Triangle indices for the bunny
 int * bunny_indices;
-int vertex_ID;
+GLuint vertex_ID;
 int * vertex_count;
 GLuint p; //program
 
@@ -113,7 +113,6 @@ void set_shaders(){
     
 }
 
-//ToDo, enable Z-buffering at some point
 int main (int argc, char **argv)
 {
     #ifdef DEBUG
@@ -195,7 +194,7 @@ int main (int argc, char **argv)
     
     //lecture example
     //using objects instead of nice old GL_vertex-calls :)
-    unsigned int vertex_array_object_ID;
+    GLuint vertex_array_object_ID;
     unsigned int number_of_arrays = 1;
     glGenVertexArrays (number_of_arrays, &vertex_array_object_ID);
     glBindVertexArray (vertex_array_object_ID);
@@ -207,8 +206,8 @@ int main (int argc, char **argv)
     unsigned int vertex_buffer_object_ID[number_of_buffers];
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
     
-    unsigned int index_buffer_object_object_ID;
-
+    unsigned int index_buffer_object_ID[1];
+    glGenBuffers(1, index_buffer_object_ID);
 
     unsigned int elements_per_vertex = 3;
 
@@ -226,27 +225,29 @@ int main (int argc, char **argv)
         GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray (vertex_position_location);
 
-
-    //adding the indices to buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_ID[1]); 
-    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
-        bunny.amount_of_faces*3*sizeof(int),
-        bunny.faces_indices,
-        GL_STATIC_READ);
     
     
     //normal buffer
-    unsigned int location_normal = glGetUniformLocation(p, "vertex_normal");
-
+    unsigned int location_normal = 1;
+    glBindAttribLocation(p, location_normal, "vertex_normal");
+    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[1]);
+    glBufferData(GL_ARRAY_BUFFER, 
+        elements_per_triangle*bunny.amount_of_faces,bunny.normals,
+       GL_STATIC_DRAW);
+ 
     glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
         GL_FALSE, 0,0);
     glEnableVertexAttribArray(location_normal);
     
-    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
-    glBufferData(GL_ARRAY_BUFFER, 
-        elements_per_triangle*bunny.amount_of_faces,bunny.normals,
-        GL_STATIC_DRAW);
-    
+ 
+    //adding the indices to buffer
+    //glBindVertexArray (vertex_array_object_ID[2]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_ID[0]); 
+    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
+        bunny.amount_of_faces*3*sizeof(int),
+        bunny.faces_indices,
+        GL_STATIC_READ);
+   
 
 
 
@@ -285,9 +286,9 @@ void display_cb(void)
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
-    GLfloat light_pos[3] = {0.0,1.0,0.0};
-    GLfloat light_color[4] = {0.3,1.0,0.3,1.5};
-    GLfloat material_diffuse[4] = {0.2,0.2,0.2,0.2};
+    GLfloat light_pos[3] = {1.0,3.0,2.0};
+    GLfloat light_color[4] = {1.0,0.0,0.0,0.0};
+    GLfloat material_diffuse[4] = {1.5,1.5,1.5,1.0};
     
     unsigned int location_light_pos = glGetUniformLocation(p,
     "light_position");
@@ -296,9 +297,9 @@ void display_cb(void)
     unsigned int location_material_diffuse = glGetUniformLocation(p,
     "material_diffuse");
 
-    glUniform3fv(location_light_pos,3, light_pos);
-    glUniform4fv(location_light_col,3, light_color);
-    glUniform4fv(location_material_diffuse, 3,material_diffuse);
+    glUniform3fv(location_light_pos,1, light_pos);
+    glUniform4fv(location_light_col,1, light_color);
+    glUniform4fv(location_material_diffuse, 1,material_diffuse);
     
     #ifdef DEBUG
 /*    printf("modelview_matrix\n");
@@ -323,6 +324,7 @@ void display_cb(void)
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
 
+ //   glBindVertexArray (vertex_ID[0]);
     glBindVertexArray (vertex_ID);
 
 	//glutSolidTeapot(0.5);
