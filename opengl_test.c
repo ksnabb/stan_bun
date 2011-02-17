@@ -321,6 +321,7 @@ void display_cb(void)
 	glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
     //glEnable(GL_SMOOTH);
 
  //   glBindVertexArray (vertex_ID[0]);
