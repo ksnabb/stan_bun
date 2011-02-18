@@ -25,18 +25,23 @@ modelview_data mod;
 
 //sets, loads and whatnot shaders
 void set_shaders(){
-     #ifdef DEBUG
+     
+    #ifdef DEBUG
     printf("starting to load shaders\n");
     #endif
+    
     GLuint f, v;
+   
+    //create the shader program
     p = glCreateProgram ();
     
     GLchar *vs, *fs;
+    
+    //create shaders
     v = glCreateShader (GL_VERTEX_SHADER);
     f = glCreateShader (GL_FRAGMENT_SHADER);
     GLint vlen = 0;
     GLint flen = 0;
-    
     
     vs = simple_fileread("simple_shader.vert", &vlen);
 
@@ -68,8 +73,10 @@ void set_shaders(){
     int compiled;
     int infoLogLen = 1000, charsWritten = 0;
     char *infoLog = 0;
+    
     glCompileShader (v);
     glGetShaderiv (v, GL_COMPILE_STATUS, &compiled);
+    
     if (!compiled) {
         //glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &infoLogLen);
         if (infoLogLen > 0) {
@@ -104,6 +111,7 @@ void set_shaders(){
     printf("compiled.any errors are above. running shaders.\n");
     #endif
     
+    //attach shaders
     glAttachShader (p, v);
     glAttachShader (p, f);
     glLinkProgram (p);
@@ -126,7 +134,7 @@ int main (int argc, char **argv)
 	glutInitWindowSize (600, 600);
     glutCreateWindow ("OpenGL Test");
 	
-    //glewinit error reporting straight from glew example
+    //glewinit error reporting
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {
@@ -138,6 +146,8 @@ int main (int argc, char **argv)
         
     printf ("Supported OpenGL version: %s\n",
 	glGetString (GL_VERSION));
+	
+	//connecting the UI interaction function
 	glutKeyboardFunc(keyb_cb);
 	glutMotionFunc(mouse_motion_cb);
 	glutMouseFunc(mouse_cb);
@@ -177,23 +187,12 @@ int main (int argc, char **argv)
     printf("beginning read from file.\n");
     #endif
    
+    //read bunny from file
     char * filename = "bunny/reconstruction/bun_zipper.ply"; 
     read_ply_from_file(filename);
-        
-    //read file here
-    //todo add parameter for normals data
-   
-    
-    //todo add index data as glBufferData of type 
-    //GL_ELEMENT_ARRAY_BUFFER
-    
-    
-    //and normal data the same way as vertex data
-    printf("read file %s that had \n%i vertices and \n%i faces.\n",
-    filename, bunny.amount_of_vertices, bunny.amount_of_faces);
-    
-    //lecture example
-    //using objects instead of nice old GL_vertex-calls :)
+      
+          
+    //setting up the vertex array and then buffers
     GLuint vertex_array_object_ID;
     unsigned int number_of_arrays = 1;
     glGenVertexArrays (number_of_arrays, &vertex_array_object_ID);
@@ -201,54 +200,51 @@ int main (int argc, char **argv)
     
     vertex_ID = vertex_array_object_ID;
 
-     
-    unsigned int number_of_buffers = 3;
+    // three buffers: vertex, vertex_normal
+    unsigned int number_of_buffers = 2;
     unsigned int vertex_buffer_object_ID[number_of_buffers];
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
     
+    //what is this?
     unsigned int index_buffer_object_ID[1];
     glGenBuffers(1, index_buffer_object_ID);
-
+    
+    //bind vertices data to the buffer
     unsigned int elements_per_vertex = 3;
-
-    unsigned int elements_per_triangle = 3 * elements_per_vertex;
-    //this monster actually binds data
+    //unsigned int elements_per_triangle = 3 * elements_per_vertex;
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[0]);
     glBufferData (GL_ARRAY_BUFFER, 
-        elements_per_vertex* bunny.amount_of_vertices * sizeof (float), 
-        bunny.vertices, GL_STATIC_DRAW);
+        elements_per_vertex * bunny.amount_of_vertices * sizeof (float), 
+        bunny.vertices, 
+        GL_STATIC_DRAW);
  
+    //vertex position x y z in the buffer
     int vertex_position_location = 0;
     glBindAttribLocation(p, vertex_position_location, "vertex_position");
-
-    glVertexAttribPointer (vertex_position_location, elements_per_vertex,
-        GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer (vertex_position_location, 
+                elements_per_vertex,
+                GL_FLOAT, 
+                GL_FALSE, 
+                0, 
+                0);
     glEnableVertexAttribArray (vertex_position_location);
-
     
     
-    //normal buffer
-    unsigned int location_normal = 1;
-    glBindAttribLocation(p, location_normal, "vertex_normal");
+    //vertex normal buffer
+    unsigned int location_vertex_normal = 1;
+    glBindAttribLocation(p, location_vertex_normal, "vertex_normal");
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[1]);
-    glBufferData(GL_ARRAY_BUFFER, 
-        elements_per_triangle*bunny.amount_of_faces,bunny.faces_normals,
-       GL_STATIC_DRAW);
- 
-    glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
-        GL_FALSE, 0,0);
-    glEnableVertexAttribArray(location_normal);
-    
- 
-    //adding the indices to buffer
-    //glBindVertexArray (vertex_array_object_ID[2]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_ID[0]); 
-    glBufferData (GL_ELEMENT_ARRAY_BUFFER, 
-        bunny.amount_of_faces*3*sizeof(int),
-        bunny.faces_indices,
-        GL_STATIC_READ);
-   
-
+    glBufferData(GL_ARRAY_BUFFER,
+                bunny.amount_of_vertices * 3 * sizeof(float),
+                bunny.vertex_normals,
+                GL_STATIC_DRAW);
+    glVertexAttribPointer(location_vertex_normal, 
+                    3, 
+                    GL_FLOAT,
+                    GL_FALSE, 
+                    0,
+                    0);
+    glEnableVertexAttribArray(location_vertex_normal);
 
     #ifdef DEBUG
     printf("binding our only vertex array, attaching display function and\n");
@@ -300,47 +296,22 @@ void display_cb(void)
     glUniform4fv(location_light_col,1, light_color);
     glUniform4fv(location_material_diffuse, 1, material_diffuse);
     
-    #ifdef DEBUG
-/*    printf("modelview_matrix\n");
-    for (int i = 0; i < 16; i++)
-    {
-        printf("%f, ", mv[i]);
-        if((i+1)%4 == 0)
-            printf("\n");
-    }
-    printf("projection_matrix\n");
-    for (int i = 0; i < 16; i++)
-    {
-        printf("%f, ", mp[i]);
-        if((i+1)%4 == 0)
-            printf("\n");
-    } 
-*/ 
-   #endif
+
 	//here goes actual drawing code
     //flip this CCW/CW to see other side of bunny for now
 	glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_SMOOTH);
-
- //   glBindVertexArray (vertex_ID[0]);
-    glBindVertexArray (vertex_ID);
-
-	//glutSolidTeapot(0.5);
-	//glScalef(1.5,1.5,1.5);
-
-   // unsigned int offset = 0;
-    //unsigned int count = elements_per_triangle * number_of_triangles;
-    //ToDo switch to glDrawElements for smarter drawing
-    //glDrawElements requires more stuff
     
-    //glDrawArrays(GL_TRIANGLES,0,3*bunny.amount_of_vertices);
-    //apparently need to use this as it is the way to draw indexed stuff
-    //perhaps that's what was wrong all along
-    glDrawElements(GL_TRIANGLES,3*bunny.amount_of_faces,
-    GL_UNSIGNED_INT,bunny_indices);
+    //vertex array
+    glBindVertexArray (vertex_ID);
+    
+    //draw the bunny according to indices and the vertices in the server buffer
+    glDrawElements(GL_TRIANGLES,
+        3*bunny.amount_of_faces,
+        GL_UNSIGNED_INT,
+        bunny.faces_indices);
 
 	glFlush();
 	glutSwapBuffers();
