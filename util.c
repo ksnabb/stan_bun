@@ -48,17 +48,13 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 
 void calc_normal(float * first, float * second, float * third, float * returnme)
 {
-    #ifdef DEBUG
-/*        printf("vectors [%f,%f,%f][%f,%f,%f][%f,%f,%f]", 
-        first[1],first[2],first[3],
-        second[1],second[2],second[3],
-        third[1],third[2],third[3]);*/
-    #endif
+
     
     float v1[3];
     float v2[3];
     float *r = returnme;
     float normalization;
+    
     //compute vectors
     v1[0] = first[0] - second[0];
     v1[1] = first[1] - second[1];
@@ -78,9 +74,6 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
     r[1] = r[1]/normalization;
     r[2] = r[2]/normalization;
 
-#ifdef DEBUG
-//    printf("and their normal is [%f,%f,%f]",r[0], r[1], r[2]);
-#endif
 }
 
 // see here for reading indices & computing normals for every vertex
@@ -115,8 +108,7 @@ ply_object read_ply_from_file(const char *file_name)
 
 
     #ifdef DEBUG
-    printf("file format says %i vertices, %i faces\n",
-bunny.amount_of_vertices,
+    printf("file format says %i vertices, %i faces\n", bunny.amount_of_vertices,
     bunny.amount_of_faces);
     #endif
     //read vertices
@@ -186,11 +178,13 @@ bunny.amount_of_vertices,
             calc_normal(v1, v2, v3, res);
             
             // add the face normal to bunny
-            bunny.faces_normals[(i * 3)] =  res[0];
-            bunny.faces_normals[(i * 3) + 1] =  res[1];
-            bunny.faces_normals[(i * 3) + 2] =  res[2];
+            bunny.faces_normals[(i * 3)] = res[0];
+            bunny.faces_normals[(i * 3) + 1] = res[1];
+            bunny.faces_normals[(i * 3) + 2] = res[2];
             
-            //add the normal to the vertex_normals (only add, count average later)
+            //add the normal to the vertex_normals 
+            //(only add, count average later)
+            
             bunny.vertex_normals[a] += res[0];
             bunny.vertex_normals[a + 1] += res[1];
             bunny.vertex_normals[a + 2] += res[2];

@@ -232,7 +232,7 @@ int main (int argc, char **argv)
     glBindAttribLocation(p, location_normal, "vertex_normal");
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[1]);
     glBufferData(GL_ARRAY_BUFFER, 
-        elements_per_triangle*bunny.amount_of_faces,bunny.vertex_normals,
+        elements_per_triangle*bunny.amount_of_faces,bunny.faces_normals,
        GL_STATIC_DRAW);
  
     glVertexAttribPointer(location_normal, elements_per_vertex, GL_FLOAT,
