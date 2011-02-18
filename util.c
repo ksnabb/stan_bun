@@ -187,28 +187,8 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.faces_normals[(i * 3) + 1] = res[1];
             bunny.faces_normals[(i * 3) + 2] = res[2];
             
-            //check that the face normal is pointing to the right direction
-           
-            if(calc_dot_product(&bunny.faces_normals[(i * 3)], &bunny.vertex_normals[(a * 3)]) < 0) {
-                bunny.faces_normals[(i * 3)] = -res[0];
-                bunny.faces_normals[(i * 3) + 1] = -res[1];
-                bunny.faces_normals[(i * 3) + 2] = -res[2];
-                //printf("lesser then zero %f \n", bunny.vertex_normals[(a * 3)]);
-            } else if(calc_dot_product(&bunny.faces_normals[(i * 3)], &bunny.vertex_normals[b]) < 0) {
-                bunny.faces_normals[(i * 3)] = -res[0];
-                bunny.faces_normals[(i * 3) + 1] = -res[1];
-                bunny.faces_normals[(i * 3) + 2] = -res[2];
-                //printf("lesser then zero\n");
-            } else if(calc_dot_product(&bunny.faces_normals[(i * 3)], &bunny.vertex_normals[c]) < 0) {
-                bunny.faces_normals[(i * 3)] = -res[0];
-                bunny.faces_normals[(i * 3) + 1] = -res[1];
-                bunny.faces_normals[(i * 3) + 2] = -res[2];
-                //printf("lesser then zero\n");
-            }
-            
             //add the normal to the vertex_normals 
             //(only add, count average later)
-            
             bunny.vertex_normals[(a * 3)] += res[0];
             bunny.vertex_normals[(a * 3) + 1] += res[1];
             bunny.vertex_normals[(a * 3) + 2] += res[2];

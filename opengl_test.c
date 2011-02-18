@@ -200,20 +200,20 @@ int main (int argc, char **argv)
     
     vertex_ID = vertex_array_object_ID;
 
-    // three buffers: vertex, vertex_normal
+    // three buffers: vertex, vertex_normal,, TODO textures and colors
     unsigned int number_of_buffers = 2;
     unsigned int vertex_buffer_object_ID[number_of_buffers];
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
     
     //what is this?
-    unsigned int index_buffer_object_ID[1];
-    glGenBuffers(1, index_buffer_object_ID);
+    //unsigned int index_buffer_object_ID[1];
+    //glGenBuffers(1, index_buffer_object_ID);
     
     //bind vertices data to the buffer
     unsigned int elements_per_vertex = 3;
     //unsigned int elements_per_triangle = 3 * elements_per_vertex;
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[0]);
-    glBufferData (GL_ARRAY_BUFFER, 
+    glBufferData (GL_ARRAY_BUFFER,
         elements_per_vertex * bunny.amount_of_vertices * sizeof (float), 
         bunny.vertices, 
         GL_STATIC_DRAW);
@@ -231,13 +231,14 @@ int main (int argc, char **argv)
     
     
     //vertex normal buffer
-    unsigned int location_vertex_normal = 1;
-    glBindAttribLocation(p, location_vertex_normal, "vertex_normal");
     glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[1]);
     glBufferData(GL_ARRAY_BUFFER,
                 bunny.amount_of_vertices * 3 * sizeof(float),
                 bunny.vertex_normals,
                 GL_STATIC_DRAW);
+                
+    unsigned int location_vertex_normal = 1;
+    glBindAttribLocation(p, location_vertex_normal, "vertex_normal");
     glVertexAttribPointer(location_vertex_normal, 
                     3, 
                     GL_FLOAT,
