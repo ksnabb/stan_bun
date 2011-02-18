@@ -5,8 +5,9 @@ typedef struct {
     float * vertices;
     int amount_of_vertices;
     int * faces_indices;
+    float * faces_normals;
     int amount_of_faces;
-    float * normals;
+    float * vertex_normals;
 } ply_object;
 
 typedef struct {
@@ -23,7 +24,7 @@ typedef struct {
     float x;
     float y;
     float z;
-    } scale;
+} scale;
 
 typedef struct {
     float camera_x;

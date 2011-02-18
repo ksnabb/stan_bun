@@ -12,6 +12,8 @@ out vec4 my_Color;
 out vec3 fragment_normal;
 out vec3 light_direction;
 out vec4 fragment_diffuse;
+
+
 void main (void)
 {
     vec3 light_loc = vec3(1.0,3.0,2.0);

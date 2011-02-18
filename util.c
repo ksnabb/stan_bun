@@ -46,8 +46,8 @@ GLchar * simple_fileread(char * file_name, GLint * length)
 }
 
 
-void calc_normal(float * first, float * second, float * third, 
-    float * returnme){
+void calc_normal(float * first, float * second, float * third, float * returnme)
+{
     #ifdef DEBUG
 /*        printf("vectors [%f,%f,%f][%f,%f,%f][%f,%f,%f]", 
         first[1],first[2],first[3],
@@ -125,10 +125,10 @@ bunny.amount_of_vertices,
     float y;
     float z;
 
-    //create vertex table for pushing into OpenGL
-    //float * vertices;
-    //observe that table is 1-dimensional
-    bunny.vertices = malloc(3*bunny.amount_of_vertices*sizeof(float));
+    //create vertex table for pushing into GLSL
+    bunny.vertices = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
+    
+    //set the vertex coordinates into bunny.vertices
     for(i = 0; i < bunny.amount_of_vertices; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
         {
@@ -136,86 +136,88 @@ bunny.amount_of_vertices,
             bunny.vertices[3*i] = x;
             bunny.vertices[(3*i)+1] = y;
             bunny.vertices[(3*i)+2] = z;
-#ifdef DEBUG
-//          if (i == 1656)
-//            printf("read vertex %i :%f, %f, %f\n",i, x, y, z);
-#endif
         }
     }
 
-    //read the faces
-//    bunny.faces = (int *) malloc(bunny.amount_of_faces*sizeof(int*));
-    //faces_indices is two dimensional array with [face_index][vertex_index]
-    bunny.faces_indices = (int *) malloc(bunny.amount_of_faces*3*sizeof(int));
-    bunny.normals = malloc(3*bunny.amount_of_faces*sizeof(float));
+    //the indices of the faces is needed for what?
+    bunny.faces_indices = (int *) malloc(bunny.amount_of_faces * 3 * sizeof(int));
+    
+    //we need the face normal to be able to shade the faces correclty
+    bunny.faces_normals = malloc(bunny.amount_of_faces * 3 * sizeof(float));
+    
+    //the vertex normals
+    bunny.vertex_normals = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
+    
+    
+    //count the face normals
+    //and 
+    //save the amount of faces per vertex for average calculation of vertex normal
     int amount_of_face_indices;
     int a, b, c;
-    //int vertex_index;
+    int * amount_of_faces_per_vertex = (int *) malloc(bunny.amount_of_vertices * sizeof(int));
+    
     for(i = 0; i < bunny.amount_of_faces; i++) {
         fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
         if (amount_of_face_indices == 3) //we're only interested in triangels
         {
+            //save the index of each vertex
             bunny.faces_indices[3*i] = a;      
             bunny.faces_indices[(3*i)+1] = b;      
-            bunny.faces_indices[(3*i)+2] = c;      
+            bunny.faces_indices[(3*i)+2] = c;
             
-            float v1[3]=
-            {bunny.vertices[a],bunny.vertices[a+1],bunny.vertices[a+2]};
-            float v2[3] =
-            {bunny.vertices[b],bunny.vertices[b+1],bunny.vertices[b+2]};
-            float v3[3] =
-            {bunny.vertices[c],bunny.vertices[c+1],bunny.vertices[c+2]};
-#ifdef DEBUG
-            if (i < 50)
-            {
-//                printf("%i, %i, %i\n", a, b, c);
-//           printf("v1 %f, %f, %f \n", v1[0], v1[1], v1[2]); 
-//           printf("v2 %f, %f, %f \n", v2[0], v2[1], v2[2]); 
-//           printf("v3 %f, %f, %f \n", v3[0], v3[1], v3[2]); 
-            }
-#endif
+            //add count to the amount of faces per vertex
+            amount_of_faces_per_vertex[a]++;
+            amount_of_faces_per_vertex[b]++;
+            amount_of_faces_per_vertex[c]++;
+            
+            //point vectors to the vertices for the triangle
+            float v1[3] = {bunny.vertices[a], 
+                            bunny.vertices[a+1], 
+                            bunny.vertices[a+2]};
+            float v2[3] = {bunny.vertices[b], 
+                            bunny.vertices[b+1], 
+                            bunny.vertices[b+2]};
+            float v3[3] = {bunny.vertices[c], 
+                            bunny.vertices[c+1], 
+                            bunny.vertices[c+2]};
 
+            //calculate the face normal
             float res[3];
             calc_normal(v1, v2, v3, res);
-            //todo, here could be a test to see if normal is "right"
-            //then we could just flip everything else as well
-            //apparently flipping v2 and v3 is sufficient
+            
+            // add the face normal to bunny
+            bunny.faces_normals[(i * 3)] =  res[0];
+            bunny.faces_normals[(i * 3) + 1] =  res[1];
+            bunny.faces_normals[(i * 3) + 2] =  res[2];
+            
+            //add the normal to the vertex_normals (only add, count average later)
+            bunny.vertex_normals[a] += res[0];
+            bunny.vertex_normals[a + 1] += res[1];
+            bunny.vertex_normals[a + 2] += res[2];
 
-            bunny.normals[a] = res[0];
-            bunny.normals[a+1] = res[1];
-            bunny.normals[a+2] = res[2];
-
-            bunny.normals[b] = res[0];
-            bunny.normals[b+1] = res[1];
-            bunny.normals[b+2] = res[2];
-
-
-            bunny.normals[c] = res[0];
-            bunny.normals[c+1] = res[1];
-            bunny.normals[c+2] = res[2];
+            bunny.vertex_normals[b] += res[0];
+            bunny.vertex_normals[b + 1] += res[1];
+            bunny.vertex_normals[b + 2] += res[2];
 
 
+            bunny.vertex_normals[c] += res[0];
+            bunny.vertex_normals[c + 1] += res[1];
+            bunny.vertex_normals[c + 2] += res[2];
 
-            //where should we put this?
-#ifdef DEBUG
-//            if (i < 50)
-//           printf("result %f, %f, %f \n", res[0], res[1], res[2]);  
-#endif
+
             }
          else {
-            
-        fprintf(stderr, "error, bad index data: not triangle!");    
+            fprintf(stderr, "error, bad index data: not triangle!");    
         }
 
     }
     
-
-        #ifdef DEBUG
-        printf("printing some normals");
-#endif
-    for (i = 0; i < bunny.amount_of_faces; i++)
-    {
-   }
+    //count the vertex_normal average
+    for(i = 0; i < bunny.amount_of_vertices; i++) {
+        bunny.vertex_normals[(i * 3)] = bunny.vertex_normals[(i * 3)] / amount_of_faces_per_vertex[i];
+        bunny.vertex_normals[(i * 3) + 1] = bunny.vertex_normals[(i * 3) + 1] / amount_of_faces_per_vertex[i];
+        bunny.vertex_normals[(i * 3) + 2] = bunny.vertex_normals[(i * 3) + 2] / amount_of_faces_per_vertex[i];
+    }
 
     fclose(ply); //close file
 

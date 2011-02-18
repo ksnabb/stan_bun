@@ -9,7 +9,9 @@ void main (void)
 {
     vec3 n;
     float ndotl;
+    
     n = normalize (fragment_normal);
+    
     ndotl = max (dot(n, light_direction), 0.0);
 
     fragment_Color = fragment_diffuse*ndotl + my_Color;
