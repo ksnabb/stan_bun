@@ -76,6 +76,11 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
 
 }
 
+float calc_dot_product(float * v1, float * v2) 
+{
+    return (v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]);
+}
+
 // see here for reading indices & computing normals for every vertex
 // http://openglsamples.sourceforge.net/files/glut_ply.cpp
 // Saves the information from the file given to the bunny ply_object
@@ -163,15 +168,15 @@ ply_object read_ply_from_file(const char *file_name)
             amount_of_faces_per_vertex[c]++;
             
             //point vectors to the vertices for the triangle
-            float v1[3] = {bunny.vertices[a], 
-                            bunny.vertices[a+1], 
-                            bunny.vertices[a+2]};
-            float v2[3] = {bunny.vertices[b], 
-                            bunny.vertices[b+1], 
-                            bunny.vertices[b+2]};
-            float v3[3] = {bunny.vertices[c], 
-                            bunny.vertices[c+1], 
-                            bunny.vertices[c+2]};
+            float v1[3] = {bunny.vertices[(a * 3)], 
+                            bunny.vertices[(a * 3) + 1], 
+                            bunny.vertices[(a * 3) + 2]};
+            float v2[3] = {bunny.vertices[(b * 3)], 
+                            bunny.vertices[(b * 3) + 1], 
+                            bunny.vertices[(b * 3) + 2]};
+            float v3[3] = {bunny.vertices[(c * 3)], 
+                            bunny.vertices[(c * 3) + 1], 
+                            bunny.vertices[(c * 3) + 2]};
 
             //calculate the face normal
             float res[3];
@@ -182,21 +187,29 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.faces_normals[(i * 3) + 1] = res[1];
             bunny.faces_normals[(i * 3) + 2] = res[2];
             
+            //check that the face normal is pointing to the right direction
+            if(calc_dot_product(&bunny.faces_normals[(i * 3)], &bunny.vertex_normals[a]) < 0) {
+                bunny.faces_normals[(i * 3)] = -res[0];
+                bunny.faces_normals[(i * 3) + 1] = -res[1];
+                bunny.faces_normals[(i * 3) + 2] = -res[2];
+                printf("lesser then zero\n");
+            } 
+            
             //add the normal to the vertex_normals 
             //(only add, count average later)
             
-            bunny.vertex_normals[a] += res[0];
-            bunny.vertex_normals[a + 1] += res[1];
-            bunny.vertex_normals[a + 2] += res[2];
+            bunny.vertex_normals[(a * 3)] += res[0];
+            bunny.vertex_normals[(a * 3) + 1] += res[1];
+            bunny.vertex_normals[(a * 3) + 2] += res[2];
 
             bunny.vertex_normals[b] += res[0];
             bunny.vertex_normals[b + 1] += res[1];
             bunny.vertex_normals[b + 2] += res[2];
 
 
-            bunny.vertex_normals[c] += res[0];
-            bunny.vertex_normals[c + 1] += res[1];
-            bunny.vertex_normals[c + 2] += res[2];
+            bunny.vertex_normals[(c * 3)] += res[0];
+            bunny.vertex_normals[(c * 3) + 1] += res[1];
+            bunny.vertex_normals[(c * 3) + 2] += res[2];
 
 
             }
