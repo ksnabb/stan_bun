@@ -305,11 +305,21 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.faces_normals[(i * 3) + 2] = res[2];
             
             //add the normal to the vertex_normals 
-            //(only add, count average later)
-            float temp[3];
-            for (int h = 0; h <3; h++)
-                temp[h] = bunny.vertex_normals[a*3+h];
+             bunny.vertex_normals[(a * 3)] = res[0];
+            bunny.vertex_normals[(a * 3) + 1] = res[1];
+            bunny.vertex_normals[(a * 3) + 2] = res[2];
+           /* 
+            bunny.vertex_normals[b] = res[0];
+            bunny.vertex_normals[b + 1] = res[1];
+            bunny.vertex_normals[b + 2] = res[2];
 
+
+            bunny.vertex_normals[(c * 3)] = res[0];
+            bunny.vertex_normals[(c * 3) + 1] = res[1];
+            bunny.vertex_normals[(c * 3) + 2] = res[2];
+            */
+           //(only add, count average later)
+/*
             bunny.vertex_normals[(a * 3)] += res[0];
             bunny.vertex_normals[(a * 3) + 1] += res[1];
             bunny.vertex_normals[(a * 3) + 2] += res[2];
@@ -322,11 +332,11 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.vertex_normals[(c * 3)] += res[0];
             bunny.vertex_normals[(c * 3) + 1] += res[1];
             bunny.vertex_normals[(c * 3) + 2] += res[2];
-
+*/
     }
     
     //count the vertex_normal average
-    for(i = 0; i < bunny.amount_of_vertices; i++) {
+/*    for(i = 0; i < bunny.amount_of_vertices; i++) {
         float temp[3];
         temp[0] = bunny.vertex_normals[(i * 3)];
         temp[1] = bunny.vertex_normals[(i*3)+2];
@@ -339,7 +349,7 @@ ply_object read_ply_from_file(const char *file_name)
         bunny.vertex_normals[i*3+1] = temp[1]/length;
         bunny.vertex_normals[i*3+2] = temp[2]/length;
         
-}
+}*/
 
     fclose(ply); //close file
 
