@@ -269,7 +269,9 @@ void display_cb(void)
     glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-    
+
+    glUseProgram(p);
+
     unsigned int location_projection_matrix = glGetUniformLocation(p,
     "projection_matrix");
     unsigned int location_modelview_matrix = glGetUniformLocation(p,
@@ -282,12 +284,14 @@ void display_cb(void)
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
-    GLfloat light_pos[3] = {1.0,3.0,2.0};
-    GLfloat light_color[4] = {1.0,0.0,0.0,0.0};
+    GLfloat light_pos[3];
+    light_pos[0] = 1.0f;
+    light_pos[1] = 3.0f;
+    light_pos[2] = 2.0f;
+    GLfloat light_color[4] = {1.0,1.0,1.0,0.0};
     GLfloat material_diffuse[4] = {1.5,1.5,1.5,1.0};
     
-    unsigned int location_light_pos = glGetUniformLocation(p,
-    "light_position");
+    unsigned int location_light_pos = glGetUniformLocation(p, "light_location");
 
     unsigned int location_light_col = glGetUniformLocation(p, "light_color");
     unsigned int location_material_diffuse = glGetUniformLocation(p,
@@ -297,9 +301,15 @@ void display_cb(void)
     glUniform4fv(location_light_col,1, light_color);
     glUniform4fv(location_material_diffuse, 1, material_diffuse);
     
+    printf("uniform locations %i, %i, %i, %i, %i\n", location_modelview_matrix,
+    location_projection_matrix, location_light_pos, location_light_col,
+    location_material_diffuse);
+
+    GLfloat temp[4];
+    glGetUniformfv(p, location_light_pos,temp);
+    printf("color %f, %f, %f\n", temp[0], temp[1], temp[2]);
 
 	//here goes actual drawing code
-    //flip this CCW/CW to see other side of bunny for now
 	glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);

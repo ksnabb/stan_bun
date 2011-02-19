@@ -1,5 +1,5 @@
 #version 150
-in vec4 my_Color;
+in vec4 base_color;
 out vec4 fragment_Color;
 in vec3 fragment_normal;
 in vec3 light_direction;
@@ -14,6 +14,6 @@ void main (void)
     
     ndotl = max (dot(n, light_direction), 0.0);
 
-    fragment_Color = fragment_diffuse * ndotl + my_Color;
+    fragment_Color = fragment_diffuse * ndotl + base_color;
 }
 

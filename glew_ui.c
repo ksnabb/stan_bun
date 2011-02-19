@@ -45,7 +45,7 @@ int prev_y = -1;
 
 void mouse_motion_cb(int x, int y)
 {
-    printf("mouse moved x: %i, y: %i\n", x, y);
+//    printf("mouse moved x: %i, y: %i\n", x, y);
     
     if(prev_x == -1 && prev_y == -1) {
         prev_x = x;
@@ -78,7 +78,7 @@ void mouse_motion_cb(int x, int y)
 
 void keyb_cb(unsigned char key, int x, int y)
 {
-    printf("keyboard key pushed %c\n", key );
+//    printf("keyboard key pushed %c\n", key );
     
     switch(key)
     {
@@ -123,7 +123,7 @@ void sp_keyb_cb(int key, int x, int y)
     switch(key)
     {
     case(GLUT_KEY_UP):
-        printf("forward key pressed\n");
+//        printf("forward key pressed\n");
         glMatrixMode(GL_MODELVIEW);
         //glScalef(1.1,1.1,1.1);
         glRotatef(-10,1,0,0);
@@ -131,7 +131,7 @@ void sp_keyb_cb(int key, int x, int y)
         //move_camera(1);
         break;
     case (GLUT_KEY_DOWN):
-        printf("backward key pressed\n");
+//        printf("backward key pressed\n");
         glMatrixMode(GL_MODELVIEW);
         //glScalef(0.9,0.9,0.9);
         glRotatef(10,1,0,0);
@@ -140,7 +140,7 @@ void sp_keyb_cb(int key, int x, int y)
         //move_camera(-1);
         break;
     case (GLUT_KEY_LEFT):
-        printf("left key pressed\n");
+//        printf("left key pressed\n");
         glMatrixMode(GL_MODELVIEW);
         glRotatef(-10,0,1,0);
         display_cb();
@@ -148,7 +148,7 @@ void sp_keyb_cb(int key, int x, int y)
         //rotate_camera(mod.angle);
         break;
     case (GLUT_KEY_RIGHT):
-        printf("right key pressed\n");
+//        printf("right key pressed\n");
         glMatrixMode(GL_MODELVIEW);
         glRotatef(10,0,1,0);
         display_cb();
