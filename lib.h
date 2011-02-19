@@ -8,6 +8,7 @@ typedef struct {
     float * faces_normals;
     int amount_of_faces;
     float * vertex_normals;
+    float * tex_coordinates; //1 per vertex
 } ply_object;
 
 typedef struct {
@@ -43,7 +44,8 @@ typedef struct {
 typedef struct {
     int width;
     int height;
-    int foo;
+    GLchar * whole;
+    GLchar * rgbstart;
 
 } img_data;
 
@@ -73,3 +75,4 @@ void timer_cb(int unused);
 void window_resize_cb(int width, int height);
 void update_modelview();
 void update_projection();
+img_data * simple_bmp_read(char * file_name);

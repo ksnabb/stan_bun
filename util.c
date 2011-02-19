@@ -15,7 +15,7 @@ extern ply_object bunny;
 GLchar * simple_fileread(char * file_name, GLint * length)
 {
     #ifdef DEBUG
-    printf("loading shader from file %s\n", file_name);
+    printf("loading data from file %s\n", file_name);
     #endif
 
     GLint chars = 0;
@@ -39,11 +39,42 @@ GLchar * simple_fileread(char * file_name, GLint * length)
     }
     *length = chars;
     #ifdef DEBUG
-    printf("done loading shader from file %s\n", file_name);
+    printf("done loading data from file %s\n", file_name);
     #endif
 
     return shader;
 }
+
+
+//reads a 24bit rgb file to a struct
+img_data * simple_bmp_read(char * file_name)
+{
+    #ifdef DEBUG
+    printf("loading texture from file %s\n", file_name);
+    #endif
+    int foo = 0;
+    img_data * pic_p;
+    pic_p = (img_data*)malloc(sizeof(img_data));
+    (*pic_p).whole = simple_fileread(file_name, &foo);
+
+    #ifdef DEBUG
+    printf("file is %i bytes \n", *((int*)&(*pic_p).whole[0x0002]));
+    #endif
+    (*pic_p).rgbstart = (GLchar*)&(*pic_p).whole+0x000A; //start of file table
+    (*pic_p).width = *((int*)&(*pic_p).whole[0x0012]); 
+    (*pic_p).height = *((int*)&(*pic_p).whole[0x0016]); 
+
+    #ifdef DEBUG
+    printf("texture is %i by %i pixels\n", (*pic_p).width, (*pic_p).height);
+    #endif
+    #ifdef DEBUG
+    printf("done loading texturefrom file %s\n", file_name);
+    #endif
+
+    return pic_p;
+}
+
+
 
 
 void calc_normal(float * first, float * second, float * third, float * returnme)
@@ -124,7 +155,8 @@ ply_object read_ply_from_file(const char *file_name)
 
     //create vertex table for pushing into GLSL
     bunny.vertices = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
-    
+   bunny.tex_coordinates = (float *) malloc(bunny.amount_of_vertices * 2 *
+   sizeof(float)); //only u and v for texture 
     //set the vertex coordinates into bunny.vertices
     for(i = 0; i < bunny.amount_of_vertices; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
@@ -133,6 +165,9 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.vertices[(3*i)] = x;
             bunny.vertices[(3*i)+1] = y;
             bunny.vertices[(3*i)+2] = z;
+            //trivial x=u, y=v mapping
+            bunny.tex_coordinates[2*i] = x;
+            bunny.tex_coordinates[2*i+1] = y;
         }
     }
 

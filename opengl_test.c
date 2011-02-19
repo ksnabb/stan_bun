@@ -14,6 +14,7 @@
 //Triangle indices for the bunny
 int * bunny_indices;
 GLuint vertex_ID;
+GLuint texture_ID;
 int * vertex_count;
 GLuint p; //program
 
@@ -120,6 +121,33 @@ void set_shaders(){
     
     
 }
+//loads our only texture
+void load_texture(char * filename){
+    GLuint n_textures = 1;
+//    texture_id is global
+    glGenTextures(n_textures, &texture_ID);
+
+    glBindTexture(GL_TEXTURE_2D, texture_ID);
+
+    img_data * tex = simple_bmp_read(filename);
+    img_data mytex = *tex;
+    #ifdef DEBUG
+    printf("attaching an %i by %i texture image from %p\n", mytex.width,
+    mytex.height, mytex.rgbstart);
+    #endif
+
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, mytex.width, mytex.height,
+    GL_RGB, GL_UNSIGNED_BYTE, mytex.rgbstart);
+    glTexImage2D(GL_TEXTURE_2D,0, GL_RGB, mytex.width, mytex.height,0,
+    GL_RGB, GL_UNSIGNED_BYTE, mytex.rgbstart);
+
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
+    free(mytex.whole);
+    free(tex);
+    }
 
 int main (int argc, char **argv)
 {
@@ -201,7 +229,7 @@ int main (int argc, char **argv)
     vertex_ID = vertex_array_object_ID;
 
     // three buffers: vertex, vertex_normal,, TODO textures and colors
-    unsigned int number_of_buffers = 2;
+    unsigned int number_of_buffers = 3;
     unsigned int vertex_buffer_object_ID[number_of_buffers];
     glGenBuffers (number_of_buffers, vertex_buffer_object_ID);
     
@@ -246,10 +274,35 @@ int main (int argc, char **argv)
                     0,
                     0);
     glEnableVertexAttribArray(location_vertex_normal);
+ 
+    //texture coordinate buffer
+    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[1]);
+    glBufferData(GL_ARRAY_BUFFER,
+                bunny.amount_of_vertices * 2 * sizeof(float),
+                bunny.tex_coordinates,
+                GL_STATIC_DRAW);
+                
+    unsigned int location_vertex_tex = 2;
+    glBindAttribLocation(p, location_vertex_tex, "vertex_texcoord");
+    glVertexAttribPointer(location_vertex_tex, 
+                    2, 
+                    GL_FLOAT,
+                    GL_FALSE, 
+                    0,
+                    0);
+    glEnableVertexAttribArray(location_vertex_tex);
+
 
     #ifdef DEBUG
-    printf("binding our only vertex array, attaching display function and\n");
+    printf("reading texture\n");
     #endif
+    
+    load_texture("./texture.bmp");
+
+    #ifdef DEBUG
+    printf(" attaching display function and running main loop\n");
+    #endif
+
 
 	glutDisplayFunc(display_cb);
 	glutMainLoop ();
@@ -305,9 +358,15 @@ void display_cb(void)
     location_projection_matrix, location_light_pos, location_light_col,
     location_material_diffuse);
 
-    GLfloat temp[4];
+/*    GLfloat temp[4];
     glGetUniformfv(p, location_light_pos,temp);
     printf("color %f, %f, %f\n", temp[0], temp[1], temp[2]);
+*/
+    //create sampler
+    int texture_sampler = glGetUniformLocation(p, "texture0");
+    glUniform1i(texture_sampler, 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_ID);
 
 	//here goes actual drawing code
 	glFrontFace(GL_CCW);
