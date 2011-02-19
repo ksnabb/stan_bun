@@ -20,8 +20,10 @@ out vec4 fragment_diffuse;
 void main (void)
 {
     light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
-        
-    fragment_texcoord = vertex_texcoord;
+
+    float foo = 0.333;
+//    fragment_texcoord = foo*vertex_texcoord; //goes to interpolation
+    fragment_texcoord = vertex_texcoord; //goes to interpolation
     fragment_normal = (modelview_matrix * vec4(vertex_normal, 0.0)).xyz;
     fragment_diffuse = material_diffuse * light_color;
     gl_Position = projection_matrix * modelview_matrix * vec4 (vertex_position, 1.0);

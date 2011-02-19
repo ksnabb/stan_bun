@@ -1,7 +1,7 @@
 #version 150
 uniform vec4 base_color;
 out vec4 fragment_Color;
-uniform sampler2D texture0;
+uniform sampler2D my_texture;
 in vec3 fragment_normal;
 in vec3 light_direction;
 
@@ -16,9 +16,10 @@ void main (void)
     n = normalize (fragment_normal);
     
     ndotl = max (dot(n, light_direction), 0.0);
-   fragment_Color = fragment_diffuse * ndotl + base_color;
+    //better for testing normals
+//   fragment_Color = fragment_diffuse * ndotl + base_color;
 
-//    fragment_Color = fragment_diffuse * ndotl + texture2D(texture0,
-//    fragment_texcoord) + base_color;
+    fragment_Color = (fragment_diffuse * ndotl)*0.5 + texture2D(my_texture,
+    fragment_texcoord) + base_color;
 }
 

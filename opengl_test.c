@@ -337,7 +337,7 @@ void display_cb(void)
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
-    GLfloat light_pos[3] = {0.0, 3.0, 0.0};
+    GLfloat light_pos[3] = {0.0, 30.0, 0.0};
     GLfloat light_color[4] = {1.0,1.0,1.0,0.0};
     GLfloat material_diffuse[4] = {1.5,1.5,1.5,1.0};
     GLfloat base_color[4] = {0.1, 0.1, 0.1,0.1}; //light grey by default
@@ -354,16 +354,17 @@ void display_cb(void)
     glUniform4fv(location_material_diffuse, 1, material_diffuse);
     glUniform4fv(location_base_color, 1, base_color);
     
-    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
-    location_projection_matrix, location_light_pos, location_light_col,
-    location_material_diffuse);
+//    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
+//
+//    location_projection_matrix, location_light_pos, location_light_col,
+//    location_material_diffuse);
 
 /*    GLfloat temp[4];
     glGetUniformfv(p, location_light_pos,temp);
     printf("color %f, %f, %f\n", temp[0], temp[1], temp[2]);
 */
     //create sampler
-    int texture_sampler = glGetUniformLocation(p, "texture0");
+    int texture_sampler = glGetUniformLocation(p, "my_texture");
     glUniform1i(texture_sampler, 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_ID);

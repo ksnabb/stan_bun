@@ -145,7 +145,7 @@ void recursive_orient(int vertex_i, float * reference, int ** vertex_in_faces, i
         float res[3]; 
        lazy_calc_normal(d, e, f, res);
 
-        if (calc_dot_product(reference, res) < 0)
+        if (calc_dot_product(reference, res) < -0.1)
         {
             //normals are over 90 degrees apart, trust first one
             //i.e. flip the latter face around 
@@ -277,7 +277,7 @@ ply_object read_ply_from_file(const char *file_name)
                     bunny.faces_indices[3*vertex_in_faces[0][0]+1], 
                     bunny.faces_indices[3*vertex_in_faces[0][0]+2],
                     reference); 
-//  don't attempt to flip normals as algorithm doesn't work
+//  algorithm doesn't seem to work :(
 //   recursive_orient(0, reference, vertex_in_faces, visited, 
 //   amount_of_faces_per_vertex); 
     for(i = 0; i < bunny.amount_of_faces; i++) {
