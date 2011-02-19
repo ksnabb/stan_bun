@@ -136,8 +136,8 @@ void recursive_orient(int vertex_i, float * reference, int ** vertex_in_faces, i
         return;
 
     visited[vertex_i] = 1;
-//    int flipped;
-    for (int i = 0; i < amount_of_faces_per_vertex[i]; i++){
+
+    for (int i = 0; i < amount_of_faces_per_vertex[vertex_i]; i++){
         int face_i = vertex_in_faces[vertex_i][i]*3;
         int d = bunny.faces_indices[face_i];
         int e = bunny.faces_indices[face_i+1];
@@ -146,27 +146,21 @@ void recursive_orient(int vertex_i, float * reference, int ** vertex_in_faces, i
        lazy_calc_normal(d, e, f, res);
 
         if (calc_dot_product(reference, res) < 0)
-    //&& calc_dot_product(prev,res) < 0) 
         {
             //normals are over 90 degrees apart, trust first one
-           //i.e. flip the latter face around 
+            //i.e. flip the latter face around 
             bunny.faces_indices[face_i+1] = f;
             bunny.faces_indices[face_i+2] = e;
             lazy_calc_normal(d, f, e, res);
         }       
-       // prev[0] = res[0];
-       // prev[1] = res[1];
-       // prev[2] = res[2];
         recursive_orient(d, res, vertex_in_faces, visited,
         amount_of_faces_per_vertex);
         recursive_orient(e, res, vertex_in_faces, visited,
         amount_of_faces_per_vertex);
         recursive_orient(f, res, vertex_in_faces, visited,
         amount_of_faces_per_vertex);
-
-    
+//    }
     }
-
 }
 
 // see here for reading indices & computing normals for every vertex
@@ -283,9 +277,9 @@ ply_object read_ply_from_file(const char *file_name)
                     bunny.faces_indices[3*vertex_in_faces[0][0]+1], 
                     bunny.faces_indices[3*vertex_in_faces[0][0]+2],
                     reference); 
-
-   recursive_orient(0, reference, vertex_in_faces, visited, 
-   amount_of_faces_per_vertex); 
+//  don't attempt to flip normals as algorithm doesn't work
+//   recursive_orient(0, reference, vertex_in_faces, visited, 
+//   amount_of_faces_per_vertex); 
     for(i = 0; i < bunny.amount_of_faces; i++) {
             a = bunny.faces_indices[3*i];      
             b = bunny.faces_indices[(3*i)+1];      
@@ -304,7 +298,7 @@ ply_object read_ply_from_file(const char *file_name)
             //calculate the face normal
             float res[3];
             calc_normal(v1, v2, v3, res);
-            
+
             // add the face normal to bunny
             bunny.faces_normals[(i * 3)] = res[0];
             bunny.faces_normals[(i * 3) + 1] = res[1];
@@ -312,10 +306,14 @@ ply_object read_ply_from_file(const char *file_name)
             
             //add the normal to the vertex_normals 
             //(only add, count average later)
+            float temp[3];
+            for (int h = 0; h <3; h++)
+                temp[h] = bunny.vertex_normals[a*3+h];
+
             bunny.vertex_normals[(a * 3)] += res[0];
             bunny.vertex_normals[(a * 3) + 1] += res[1];
             bunny.vertex_normals[(a * 3) + 2] += res[2];
-
+            
             bunny.vertex_normals[b] += res[0];
             bunny.vertex_normals[b + 1] += res[1];
             bunny.vertex_normals[b + 2] += res[2];
@@ -325,15 +323,23 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.vertex_normals[(c * 3) + 1] += res[1];
             bunny.vertex_normals[(c * 3) + 2] += res[2];
 
-
     }
     
     //count the vertex_normal average
     for(i = 0; i < bunny.amount_of_vertices; i++) {
-        bunny.vertex_normals[(i * 3)] = bunny.vertex_normals[(i * 3)] / amount_of_faces_per_vertex[i];
-        bunny.vertex_normals[(i * 3) + 1] = bunny.vertex_normals[(i * 3) + 1] / amount_of_faces_per_vertex[i];
-        bunny.vertex_normals[(i * 3) + 2] = bunny.vertex_normals[(i * 3) + 2] / amount_of_faces_per_vertex[i];
-    }
+        float temp[3];
+        temp[0] = bunny.vertex_normals[(i * 3)];
+        temp[1] = bunny.vertex_normals[(i*3)+2];
+        temp[2] = bunny.vertex_normals[(i * 3)+2]; 
+
+        float length = sqrt(temp[0]*temp[0] + temp[1]*temp[1] +
+        temp[2]*temp[2]);
+
+        bunny.vertex_normals[i*3] = temp[0]/length;
+        bunny.vertex_normals[i*3+1] = temp[1]/length;
+        bunny.vertex_normals[i*3+2] = temp[2]/length;
+        
+}
 
     fclose(ply); //close file
 
