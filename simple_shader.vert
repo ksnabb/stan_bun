@@ -2,6 +2,7 @@
 
 uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
+uniform mat4 normal_matrix;
 in vec3 vertex_position;
 in vec3 vertex_normal;
 in vec2 vertex_texcoord;
@@ -23,7 +24,7 @@ void main (void)
     light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
         
     fragment_texcoord = vertex_texcoord;
-    fragment_normal = vertex_normal; //(modelview_matrix * vec4(vertex_normal, 0.0)).xyz;
+    fragment_normal = (modelview_matrix * vec4(vertex_normal, 0.0)).xyz;
     fragment_diffuse = material_diffuse * light_color;
     gl_Position = projection_matrix * modelview_matrix * vec4 (vertex_position, 1.0);
 }

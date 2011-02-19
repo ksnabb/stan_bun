@@ -337,22 +337,22 @@ void display_cb(void)
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
     
-    GLfloat light_pos[3];
-    light_pos[0] = 1.0f;
-    light_pos[1] = 3.0f;
-    light_pos[2] = 2.0f;
+    GLfloat light_pos[3] = {0.0, 3.0, 0.0};
     GLfloat light_color[4] = {1.0,1.0,1.0,0.0};
     GLfloat material_diffuse[4] = {1.5,1.5,1.5,1.0};
+    GLfloat base_color[4] = {0.1, 0.1, 0.1,0.1}; //mild grey
     
     unsigned int location_light_pos = glGetUniformLocation(p, "light_location");
 
     unsigned int location_light_col = glGetUniformLocation(p, "light_color");
     unsigned int location_material_diffuse = glGetUniformLocation(p,
     "material_diffuse");
+    unsigned int location_base_color = glGetUniformLocation(p, "base_color");
 
     glUniform3fv(location_light_pos,1, light_pos);
     glUniform4fv(location_light_col,1, light_color);
     glUniform4fv(location_material_diffuse, 1, material_diffuse);
+    glUniform4fv(location_base_color, 1, base_color);
     
     printf("uniform locations %i, %i, %i, %i, %i\n", location_modelview_matrix,
     location_projection_matrix, location_light_pos, location_light_col,
