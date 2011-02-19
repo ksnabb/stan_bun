@@ -276,7 +276,7 @@ int main (int argc, char **argv)
     glEnableVertexAttribArray(location_vertex_normal);
  
     //texture coordinate buffer
-    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[1]);
+    glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer_object_ID[2]);
     glBufferData(GL_ARRAY_BUFFER,
                 bunny.amount_of_vertices * 2 * sizeof(float),
                 bunny.tex_coordinates,
@@ -340,7 +340,7 @@ void display_cb(void)
     GLfloat light_pos[3] = {0.0, 3.0, 0.0};
     GLfloat light_color[4] = {1.0,1.0,1.0,0.0};
     GLfloat material_diffuse[4] = {1.5,1.5,1.5,1.0};
-    GLfloat base_color[4] = {0.1, 0.1, 0.1,0.1}; //mild grey
+    GLfloat base_color[4] = {0.1, 0.1, 0.1,0.1}; //light grey by default
     
     unsigned int location_light_pos = glGetUniformLocation(p, "light_location");
 
@@ -354,7 +354,7 @@ void display_cb(void)
     glUniform4fv(location_material_diffuse, 1, material_diffuse);
     glUniform4fv(location_base_color, 1, base_color);
     
-    printf("uniform locations %i, %i, %i, %i, %i\n", location_modelview_matrix,
+    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
     location_projection_matrix, location_light_pos, location_light_col,
     location_material_diffuse);
 

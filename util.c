@@ -11,6 +11,7 @@
 int LINE_LENGTH=100;
 extern ply_object bunny;
 
+
 //reads a file to a char array
 GLchar * simple_fileread(char * file_name, GLint * length)
 {
@@ -107,9 +108,65 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
 
 }
 
+void lazy_calc_normal(int a, int b, int c, float*ret){
+             //point vectors to the vertices for the triangle
+            float v1[3] = {bunny.vertices[(a * 3)], 
+                            bunny.vertices[(a * 3) + 1], 
+                            bunny.vertices[(a * 3) + 2]};
+            float v2[3] = {bunny.vertices[(b * 3)], 
+                            bunny.vertices[(b * 3) + 1], 
+                            bunny.vertices[(b * 3) + 2]};
+            float v3[3] = {bunny.vertices[(c * 3)], 
+                            bunny.vertices[(c * 3) + 1], 
+                            bunny.vertices[(c * 3) + 2]};
+
+            calc_normal(v1, v2, v3, ret); 
+    }
+
 float calc_dot_product(float * v1, float * v2) 
 {
     return (v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]);
+}
+
+
+//go recursively through faces related to a vertex and then adjacent vertices
+//if dot product of two normals is negative, flip triangle
+void recursive_orient(int vertex_i, float * reference, int ** vertex_in_faces, int * visited, int* amount_of_faces_per_vertex) {
+    if (visited[vertex_i])
+        return;
+
+    visited[vertex_i] = 1;
+//    int flipped;
+    for (int i = 0; i < amount_of_faces_per_vertex[i]; i++){
+        int face_i = vertex_in_faces[vertex_i][i]*3;
+        int d = bunny.faces_indices[face_i];
+        int e = bunny.faces_indices[face_i+1];
+        int f = bunny.faces_indices[face_i+2];
+        float res[3]; 
+       lazy_calc_normal(d, e, f, res);
+
+        if (calc_dot_product(reference, res) < 0)
+    //&& calc_dot_product(prev,res) < 0) 
+        {
+            //normals are over 90 degrees apart, trust first one
+           //i.e. flip the latter face around 
+            bunny.faces_indices[face_i+1] = f;
+            bunny.faces_indices[face_i+2] = e;
+            lazy_calc_normal(d, f, e, res);
+        }       
+       // prev[0] = res[0];
+       // prev[1] = res[1];
+       // prev[2] = res[2];
+        recursive_orient(d, res, vertex_in_faces, visited,
+        amount_of_faces_per_vertex);
+        recursive_orient(e, res, vertex_in_faces, visited,
+        amount_of_faces_per_vertex);
+        recursive_orient(f, res, vertex_in_faces, visited,
+        amount_of_faces_per_vertex);
+
+    
+    }
+
 }
 
 // see here for reading indices & computing normals for every vertex
@@ -187,6 +244,15 @@ ply_object read_ply_from_file(const char *file_name)
     int amount_of_face_indices;
     int a, b, c;
     int * amount_of_faces_per_vertex = (int *) malloc(bunny.amount_of_vertices * sizeof(int));
+    int * visited = (int*) malloc(bunny.amount_of_vertices*sizeof(int*));
+
+    int ** vertex_in_faces =(int**) malloc(bunny.amount_of_vertices*sizeof(int*));
+    for (i = 0; i< bunny.amount_of_vertices; i++){
+            vertex_in_faces[i] = malloc(30*sizeof(float)); //hope this is enough
+            visited[i] = 0;
+            //todoo, free vertex_in_faces and visited after they're not needed
+        }
+
     
     for(i = 0; i < bunny.amount_of_faces; i++) {
         fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
@@ -197,11 +263,33 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.faces_indices[(3*i)+1] = b;      
             bunny.faces_indices[(3*i)+2] = c;
             
+            vertex_in_faces[a][amount_of_faces_per_vertex[a]] = i; 
+            vertex_in_faces[b][amount_of_faces_per_vertex[b]] = i; 
+            vertex_in_faces[c][amount_of_faces_per_vertex[c]] = i; 
+
             //add count to the amount of faces per vertex
             amount_of_faces_per_vertex[a]++;
             amount_of_faces_per_vertex[b]++;
             amount_of_faces_per_vertex[c]++;
-            
+
+        }
+         else {
+            fprintf(stderr, "error, bad index data: not triangle!");    
+        }
+    }            
+   
+   float reference[3];
+   lazy_calc_normal(bunny.faces_indices[3*vertex_in_faces[0][0]],
+                    bunny.faces_indices[3*vertex_in_faces[0][0]+1], 
+                    bunny.faces_indices[3*vertex_in_faces[0][0]+2],
+                    reference); 
+
+   recursive_orient(0, reference, vertex_in_faces, visited, 
+   amount_of_faces_per_vertex); 
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+            a = bunny.faces_indices[3*i];      
+            b = bunny.faces_indices[(3*i)+1];      
+            c = bunny.faces_indices[(3*i)+2];
             //point vectors to the vertices for the triangle
             float v1[3] = {bunny.vertices[(a * 3)], 
                             bunny.vertices[(a * 3) + 1], 
@@ -237,11 +325,6 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.vertex_normals[(c * 3) + 1] += res[1];
             bunny.vertex_normals[(c * 3) + 2] += res[2];
 
-
-            }
-         else {
-            fprintf(stderr, "error, bad index data: not triangle!");    
-        }
 
     }
     

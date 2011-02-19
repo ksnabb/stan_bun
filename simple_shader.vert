@@ -19,8 +19,6 @@ out vec4 fragment_diffuse;
 
 void main (void)
 {
-
-    vec3 light;
     light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
         
     fragment_texcoord = vertex_texcoord;

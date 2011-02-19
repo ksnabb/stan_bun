@@ -92,6 +92,9 @@ void keyb_cb(unsigned char key, int x, int y)
         glScalef(0.9,0.9,0.9);
         display_cb();
         break;
+    case(27): //esc
+        exit(0);
+        break;
     }
 }
 

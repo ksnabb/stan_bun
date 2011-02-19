@@ -16,8 +16,9 @@ void main (void)
     n = normalize (fragment_normal);
     
     ndotl = max (dot(n, light_direction), 0.0);
+   fragment_Color = fragment_diffuse * ndotl + base_color;
 
-    fragment_Color = fragment_diffuse * ndotl + texture2D(texture0,
-    fragment_texcoord) + base_color;
+//    fragment_Color = fragment_diffuse * ndotl + texture2D(texture0,
+//    fragment_texcoord) + base_color;
 }
 
