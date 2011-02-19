@@ -17,9 +17,9 @@ void main (void)
     
     ndotl = max (dot(n, light_direction), 0.0);
     //better for testing normals
-//   fragment_Color = fragment_diffuse * ndotl + base_color;
+//   fragment_Color = fragment_diffuse * ndotl ;
 
     fragment_Color = (fragment_diffuse * ndotl)*0.5 + texture2D(my_texture,
-    fragment_texcoord) + base_color;
+    fragment_texcoord);
 }
 
