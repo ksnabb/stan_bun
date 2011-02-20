@@ -140,9 +140,9 @@ void load_texture(char * filename){
     #endif
 
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, mytex.width, mytex.height,
-    GL_RGB, GL_UNSIGNED_BYTE, mytex.rgbstart);
-    glTexImage2D(GL_TEXTURE_2D,0, GL_RGB, mytex.width, mytex.height,0,
-    GL_RGB, GL_UNSIGNED_BYTE, mytex.rgbstart);
+    GL_RGB, GL_UNSIGNED_BYTE, mytex.whole+0x000A);
+//    glTexImage2D(GL_TEXTURE_2D,0, GL_RGBA, mytex.width, mytex.height,0,
+//    GL_RGBA, GL_UNSIGNED_BYTE, mytex.rgbstart);
 
     glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR);
