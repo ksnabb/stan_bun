@@ -53,12 +53,11 @@ void main (void)
         color += fragment_diffuse * ndotl;
         float ndothv = max(dot(fragment_normal, halfway_vector0),0.0);
         color += material.specular * light0.specular * pow(ndothv,
-        material.shininess);
+        1.0);
     }
 
 
-    fragment_Color = color;
-//+ texture2D(my_texture,
-//    fragment_texcoord);
+    fragment_Color = color + texture2D(my_texture,
+    fragment_texcoord);
 }
 

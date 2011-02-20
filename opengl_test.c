@@ -310,15 +310,15 @@ int main (int argc, char **argv)
     material.ambient = (GLfloat*)&ambient;
     GLfloat diffuse[4] = {0.5,0.5,0.5,1.0};
     material.diffuse = (GLfloat*)&diffuse;
-    GLfloat specular[4] = {0.8,0.8,0.8,1.0};
+    GLfloat specular[4] = {0.5,0.5,0.5,1.0};
     material.specular = (GLfloat*)&specular;
 
     //light 0 is a directed light up high
-    GLfloat light0pos[4] = {0.0, 5.0, 5.0, 0.0};
+    GLfloat light0pos[4] = {0.0, 50.0, 5.0, 0.0};
     lights[0].position = (GLfloat*) &light0pos;
     GLfloat light0diffuse[4] = {0.3,0.3,0.3,1.0};
     lights[0].diffuse = (GLfloat*) &light0diffuse;
-    GLfloat light0specular[4] = {1.0,1.0,1.0,1.0};
+    GLfloat light0specular[4] = {0.0,0.0,0.1,1.0};
     lights[0].specular = light0specular;
     GLfloat light0ambient[4] = {0.05,0.05,0.05,1.0};
     lights[0].ambient = light0ambient;//do we need this?
@@ -352,7 +352,7 @@ void display_cb(void)
 {
     
     #ifdef DEBUG
-    printf("display callback called\n");
+//    printf("display callback called\n");
     #endif
 
     glClearColor(0.0, 0.0, 0.0, 0.0);

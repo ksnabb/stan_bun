@@ -35,7 +35,6 @@ in vec3 vertex_normal;
 in vec2 vertex_texcoord;
 uniform vec3 light_location;
 uniform vec4 light_color;
-uniform vec4 material_diffuse;
 uniform vec4 base_color;
 //out vec3 halfway_vector;
 out vec3 fragment_normal;
@@ -57,7 +56,7 @@ void main (void)
 
     //light 0 is directional
 
-    fragment_diffuse = material_diffuse * light0.diffuse;
+    fragment_diffuse = material.diffuse * light0.diffuse;
     //for directional light location = direction more or less
     light_direction = normalize(vec3(light0.position));
     vec4 ambient_0 = material.ambient + light0.ambient;
