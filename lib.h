@@ -59,6 +59,29 @@ typedef struct {
     
 } vertex_data;
 
+typedef struct {
+    GLfloat * emission;
+    GLfloat * ambient;
+    GLfloat * diffuse;
+    GLfloat * specular;
+    GLfloat shininess;
+    
+} material_params;
+
+typedef struct {
+   GLfloat * position; 
+    GLfloat * ambient;
+    GLfloat * diffuse;
+    GLfloat * specular;
+    GLfloat * spot_dir;
+    GLfloat spot_exponent;
+    GLfloat spot_cosine_cutoff;
+    GLfloat constant_att;
+    GLfloat linear_att;
+    GLfloat quadratic_att;
+    GLuint type; //0 = directed, 1 = spot, 2 = spotlight;
+} light_params;
+
 //util.c
 GLchar * simple_fileread(char * file_name, GLint * length);
 ply_object read_ply_from_file(const char *file_name);

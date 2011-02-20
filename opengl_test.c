@@ -23,6 +23,9 @@ GLuint p; //program
 ply_object bunny;
 projection_data proj;
 modelview_data mod;
+light_params lights[2];
+material_params material;
+GLuint num_lights = 1;
 
 //sets, loads and whatnot shaders
 void set_shaders(){
@@ -299,6 +302,39 @@ int main (int argc, char **argv)
     
     load_texture("./texture.bmp");
 
+    //initialize lights and materials here 
+    material.shininess = 20.0;
+    GLfloat emission[4] = {1.0,1.0,1.0,1.0}; 
+    material.emission = (GLfloat*) &emission;
+    GLfloat ambient[4] = {0.2,0.2,0.2,1.0};
+    material.ambient = (GLfloat*)&ambient;
+    GLfloat diffuse[4] = {0.5,0.5,0.5,1.0};
+    material.diffuse = (GLfloat*)&diffuse;
+    GLfloat specular[4] = {0.8,0.8,0.8,1.0};
+    material.specular = (GLfloat*)&specular;
+
+    //light 0 is a directed light up high
+    GLfloat light0pos[4] = {0.0, 5.0, 5.0, 0.0};
+    lights[0].position = (GLfloat*) &light0pos;
+    GLfloat light0diffuse[4] = {0.3,0.3,0.3,1.0};
+    lights[0].diffuse = (GLfloat*) &light0diffuse;
+    GLfloat light0specular[4] = {1.0,1.0,1.0,1.0};
+    lights[0].specular = light0specular;
+    GLfloat light0ambient[4] = {0.05,0.05,0.05,1.0};
+    lights[0].ambient = light0ambient;//do we need this?
+    lights[0].type = 0; //directed light
+    
+    //light 1 is either a point light or a spotlight depending on config
+   /* 
+    lights[1].position = {0.0,1.0,0.0,0.0}; //in eye coords, just above eye
+    lights[1].spot_exponent = 4.0;
+    lights[1].spot_cosine_cutoff = 0.2; //how large spot angle
+    lights[1].spot_dir = {0.0,0.0,-1.0,0.0}; //straight forward from eye
+    lights[1].spot_ambient = {0.0,0.0,0.0,0.0};  
+    lights[1].spot_diffuse = {1.0,0.0,0.0,0.0}; //red
+    lights[1].type = 1;
+*/
+
     #ifdef DEBUG
     printf(" attaching display function and running main loop\n");
     #endif
@@ -336,24 +372,43 @@ void display_cb(void)
     glGetFloatv (GL_MODELVIEW_MATRIX, mv);
     glUniformMatrix4fv (location_projection_matrix, 1, GL_FALSE, mp);
     glUniformMatrix4fv (location_modelview_matrix, 1, GL_FALSE, mv);
+   
+    GLfloat base_color[4] = {0.05, 0.05, 0.05, 1.0}; //light grey by default
     
-    GLfloat light_pos[3] = {0.0, 5.0, 0.0};
-    GLfloat light_color[4] = {1.0,1.0,1.0,0.0};
-    GLfloat material_diffuse[4] = {1.5,1.5,1.5,1.0};
-    GLfloat base_color[4] = {0.1, 0.1, 0.1,0.1}; //light grey by default
-    
-    unsigned int location_light_pos = glGetUniformLocation(p, "light_location");
 
-    unsigned int location_light_col = glGetUniformLocation(p, "light_color");
-    unsigned int location_material_diffuse = glGetUniformLocation(p,
-    "material_diffuse");
+
     unsigned int location_base_color = glGetUniformLocation(p, "base_color");
 
-    glUniform3fv(location_light_pos,1, light_pos);
-    glUniform4fv(location_light_col,1, light_color);
-    glUniform4fv(location_material_diffuse, 1, material_diffuse);
+
+    //glUniform1iv(location_lights,2, lights);
+    //glUniform4fv(location_material, 1, material);
     glUniform4fv(location_base_color, 1, base_color);
+   //crap, can't send a struct as a struct, need to send piece by piece
+    glUniform4fv(glGetUniformLocation(p,"light0.diffuse"),1,
+    lights[0].diffuse);
+    glUniform4fv(glGetUniformLocation(p,"light0.position"),1,
+    lights[0].position);
+    glUniform4fv(glGetUniformLocation(p,"light0.specular"),1,
+    lights[0].specular);
+    glUniform4fv(glGetUniformLocation(p,"light0.ambient"),1,
+    lights[0].ambient);
+    glUniform1i(glGetUniformLocation(p,"light0.type"),
+    lights[0].type);
+
+    glUniform4fv(glGetUniformLocation(p,"material.ambient"),1,
+    material.ambient);
+    glUniform4fv(glGetUniformLocation(p,"material.diffuse"),1,
+    material.diffuse);
+    glUniform4fv(glGetUniformLocation(p,"material.specular"),1,
+    material.specular);
+     glUniform4fv(glGetUniformLocation(p,"material.emission"),1,
+    material.emission);
+    glUniform1f(glGetUniformLocation(p,"material.shininess"),
+     material.shininess);
+
+
     
+
 //    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
 //
 //    location_projection_matrix, location_light_pos, location_light_col,
