@@ -43,6 +43,7 @@ void main (void)
     vec4 specular = vec4(0.0,0.0,0.0,0.0); 
     vec4 diffuse = vec4(0.0,0.0,0.0,0.0); 
     n = normalize (fragment_normal);
+    vec3 h = normalize(halfway_vector0);
     vec3 ld = normalize(light_direction);
     vec4 tex_col = texture2D(my_texture, fragment_texcoord);
     vec4 ambient_t = ambient * tex_col;
@@ -52,7 +53,10 @@ void main (void)
     
     ndotl = max (dot(n, ld), 0.0);
 
-    float ndothv = max(dot(fragment_normal, halfway_vector0),0.0);
+    float ndothv = max(dot(n, h),0.0);
+//    if (ndothv > 1.0){
+//        ndothv = 1.0;
+//    }
     color = ambient_t;
  //if specular is possible, compute
     if (ndotl > 0.0){
@@ -66,8 +70,8 @@ void main (void)
 
 //    fragment_Color = vec4(color.rgb , 1.0);
     fragment_Color = 
-//    ambient + 
-//   fragment_diffuse * ndotl;
+    ambient + 
+   fragment_diffuse * ndotl+
     material.specular*light0.specular*pow(ndothv, 12.0);
 }
 

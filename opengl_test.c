@@ -303,7 +303,7 @@ int main (int argc, char **argv)
     load_texture("./texture.bmp");
 
     //initialize lights and materials here 
-    material.shininess = 10.0;
+    material.shininess = 40.0;
     GLfloat ambient[4] = {0.05,0.05,0.05,1.0};
     material.ambient = (GLfloat*)&ambient;
     GLfloat diffuse[4] = {0.5,0.5,0.5,1.0};
@@ -316,7 +316,7 @@ int main (int argc, char **argv)
     lights[0].position = (GLfloat*) &light0pos;
     GLfloat light0diffuse[4] = {0.3,0.3,0.3,1.0};
     lights[0].diffuse = (GLfloat*) &light0diffuse;
-    GLfloat light0specular[4] = {0.1,0.1,0.1,1.0};
+    GLfloat light0specular[4] = {0.3,0.3,0.3,1.0};
     lights[0].specular = light0specular;
     GLfloat light0ambient[4] = {0.1,0.1,0.1,1.0};
     lights[0].ambient = light0ambient;//do we need this?
