@@ -52,17 +52,22 @@ void main (void)
     
     ndotl = max (dot(n, ld), 0.0);
 
+    float ndothv = max(dot(fragment_normal, halfway_vector0),0.0);
     color = ambient_t;
  //if specular is possible, compute
     if (ndotl > 0.0){
         diffuse = diffuse_t * ndotl;
-        float ndothv = max(dot(fragment_normal, halfway_vector0),0.0);
         specular = specular_t * light0.specular * pow(ndothv,
         material.shininess);
     }
+
     color = color + diffuse + specular;
 
 
-    fragment_Color = vec4(color.rgb , 1.0);
+//    fragment_Color = vec4(color.rgb , 1.0);
+    fragment_Color = 
+//    ambient + 
+//    fragment_diffuse * ndotl;
+    material.specular*light0.specular*pow(ndothv, 12.0);
 }
 

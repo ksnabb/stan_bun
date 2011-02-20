@@ -64,13 +64,13 @@ void main (void)
 
     //light 1 not implemented yet
 
-    ambient =  ambient_0;
+    ambient =  ambient_0+g_ambient;
 
     gl_Position = projection_matrix * modelview_matrix * vec4 (vertex_position, 1.0);
     //halfway vector is the "average" of position vector and light vector in
     //eye space. position *should* be the inverse of eye vector after
     //transform
-    halfway_vector0 = (-1.0*gl_Position.xyz)-light_direction;
+    halfway_vector0 = normalize(light_direction-gl_Position);
 
 }
 
