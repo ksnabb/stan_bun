@@ -103,7 +103,7 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
 
     // just calculate the normal the normalization should happen elsewhere
     // the area of the triangle is important to weight the normal compared
-    // to other normals
+    // to other normals (?)
     //normalization = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
     //r[0] = r[0]/normalization;
     //r[1] = r[1]/normalization;
@@ -184,10 +184,10 @@ void recursive_orient(int face_index,
                 faces_normals[(fi1 * 3) + 2]  
             };
             if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
-                int i1 = bunny.faces_indices[fi1+1];
-                int i2 = bunny.faces_indices[fi1+2];
-                bunny.faces_indices[fi1+2] = i1;
-                bunny.faces_indices[fi1+1] = i2;
+                int i1 = bunny.faces_indices[(fi1 *3)+1];
+                int i2 = bunny.faces_indices[(fi1 *3)+2];
+                bunny.faces_indices[(fi1 *3)+2] = i1;
+                bunny.faces_indices[(fi1 *3)+1] = i2;
                 
                 faces_normals[(fi1 * 3)] = -faces_normals[(fi1 * 3)];
                 faces_normals[(fi1 * 3) + 1] = -faces_normals[(fi1 * 3) + 1];
@@ -206,10 +206,10 @@ void recursive_orient(int face_index,
                 faces_normals[(fi2 * 3) + 2]
             };
             if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
-                int i1 = bunny.faces_indices[fi2+1];
-                int i2 = bunny.faces_indices[fi2+2];
-                bunny.faces_indices[fi2+2] = i1;
-                bunny.faces_indices[fi2+1] = i2;
+                int i1 = bunny.faces_indices[(fi2 * 3)+1];
+                int i2 = bunny.faces_indices[(fi2 * 3)+2];
+                bunny.faces_indices[(fi2 * 3)+2] = i1;
+                bunny.faces_indices[(fi2 * 3)+1] = i2;
             
                 
                 faces_normals[(fi2 * 3)] = -faces_normals[(fi2 * 3)];
@@ -229,10 +229,10 @@ void recursive_orient(int face_index,
                 faces_normals[(fi3 * 3) + 2]
             };
             if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
-                int i1 = bunny.faces_indices[fi3+1];
-                int i2 = bunny.faces_indices[fi3+2];
-                bunny.faces_indices[fi3+2] = i1;
-                bunny.faces_indices[fi3+1] = i2;
+                int i1 = bunny.faces_indices[(fi3 * 3)+1];
+                int i2 = bunny.faces_indices[(fi3 * 3)+2];
+                bunny.faces_indices[(fi3 * 3)+2] = i1;
+                bunny.faces_indices[(fi3 * 3)+1] = i2;
                 
                 
                 faces_normals[(fi3 * 3)] = -faces_normals[(fi3 * 3)];
@@ -246,7 +246,6 @@ void recursive_orient(int face_index,
                     visited);
         }
     }
-    return;
     /*
     for (int i = 0; i < amount_of_faces_per_vertex[vertex_i]; i++){
         int face_i = vertex_in_faces[vertex_i][i]*3;
@@ -389,8 +388,8 @@ ply_object read_ply_from_file(const char *file_name)
          else {
             fprintf(stderr, "error, bad index data: not triangle!");    
         }
-    }            
-   
+    } 
+    
    //just choose the face index where to start recursive calculation
    float reference[3];
    lazy_calc_normal(bunny.faces_indices[3*vertex_in_faces[0][0]],
