@@ -101,6 +101,7 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
     r[1] = v2[0]*v1[2] - v1[0]*v2[2];
     r[2] = v1[0]*v2[1]- v2[0]*v1[1];
 
+    // just calculate the normal the normalization should happen elsewhere
     normalization = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
     r[0] = r[0]/normalization;
     r[1] = r[1]/normalization;
@@ -129,21 +130,113 @@ float calc_dot_product(float * v1, float * v2)
 }
 
 
-//go recursively through faces related to a vertex and then adjacent vertices
-//if dot product of two normals is negative, flip triangle
-void recursive_orient(int vertex_i, float * reference, int ** vertex_in_faces, int * visited, int* amount_of_faces_per_vertex) {
-    if (visited[vertex_i])
+void recursive_orient(int face_index, 
+                    float * faces_normals, 
+                    int * faces_indices, 
+                    int ** vertex_in_faces,
+                    bool * visited) {
+                    
+    if(visited[face_index])
         return;
-
-    visited[vertex_i] = 1;
-
+    
+    //mark this face as visited
+    //printf("mark face as visited: %i\n", face_index);
+    visited[face_index] = true;
+    
+    //current_face normal
+    float current_face_normal[3] = {
+        faces_normals[(face_index * 3)],
+        faces_normals[(face_index * 3) + 1],
+        faces_normals[(face_index * 3) + 2]
+    };
+    /*
+    float normalization;
+    normalization = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
+    r[0] = r[0]/normalization;
+    r[1] = r[1]/normalization;
+    r[2] = r[2]/normalization;
+    
+    printf("current face normal %f %f %f\n",
+        faces_normals[(face_index * 3)],
+        faces_normals[(face_index * 3) + 1],
+        faces_normals[(face_index * 3) + 2]);
+    */
+    
+    //vertex indices that is connected to the current_face
+    int vi1 = faces_indices[(face_index * 3)];
+    int vi2 = faces_indices[(face_index * 3) + 1];
+    int vi3 = faces_indices[(face_index * 3) + 2];
+    
+    int i;
+    //printf("%i\n", face_index);
+    for(i = 0; i < 9; i++) {
+        //printf("get the connected faces to face: \n", face_index);
+        //the face indexes that is connected to the current_face
+        int fi1 = vertex_in_faces[vi1][i];
+        int fi2 = vertex_in_faces[vi2][i];
+        int fi3 = vertex_in_faces[vi3][i];
+        //printf("connected face %i %i %i\n", fi1, fi2, fi3);
+        if(fi1 != 0 && !visited[fi1]) {
+            float nface_normal[3] = {
+                faces_normals[(fi1 * 3)],
+                faces_normals[(fi1 * 3) + 1],
+                faces_normals[(fi1 * 3) + 2]  
+            };
+            if(calc_dot_product(nface_normal, current_face_normal) < 0) {
+                faces_normals[(fi1 * 3)] = -faces_normals[(fi1 * 3)];
+                faces_normals[(fi1 * 3) + 1] = -faces_normals[(fi1 * 3) + 1];
+                faces_normals[(fi1 * 3) + 2] = -faces_normals[(fi1 * 3) + 2];
+            }
+            recursive_orient(fi1, 
+                    faces_normals, 
+                    faces_indices, 
+                    vertex_in_faces,
+                    visited);
+        }
+        if(fi2 != 0 && !visited[fi2]) {
+            float nface_normal[3] = {
+                faces_normals[(fi2 * 3)],
+                faces_normals[(fi2 * 3) + 1],
+                faces_normals[(fi2 * 3) + 2]
+            };
+            if(calc_dot_product(nface_normal, current_face_normal) < 0) {
+                faces_normals[(fi2 * 3)] = -faces_normals[(fi2 * 3)];
+                faces_normals[(fi2 * 3) + 1] = -faces_normals[(fi2 * 3) + 1];
+                faces_normals[(fi2 * 3) + 2] = -faces_normals[(fi2 * 3) + 2];
+            }
+            recursive_orient(fi2, 
+                    faces_normals, 
+                    faces_indices, 
+                    vertex_in_faces,
+                    visited);
+        }
+        if(fi3 != 0 && !visited[fi3]) {
+            float nface_normal[3] = {
+                faces_normals[(fi3 * 3)],
+                faces_normals[(fi3 * 3) + 1],
+                faces_normals[(fi3 * 3) + 2]
+            };
+            if(calc_dot_product(nface_normal, current_face_normal) < 0) {
+                faces_normals[(fi3 * 3)] = -faces_normals[(fi3 * 3)];
+                faces_normals[(fi3 * 3) + 1] = -faces_normals[(fi3 * 3) + 1];
+                faces_normals[(fi3 * 3) + 2] = -faces_normals[(fi3 * 3) + 2];
+            }
+            recursive_orient(fi3, 
+                    faces_normals, 
+                    faces_indices, 
+                    vertex_in_faces,
+                    visited);
+        }
+    }
+    return;
+    /*
     for (int i = 0; i < amount_of_faces_per_vertex[vertex_i]; i++){
         int face_i = vertex_in_faces[vertex_i][i]*3;
         int d = bunny.faces_indices[face_i];
         int e = bunny.faces_indices[face_i+1];
         int f = bunny.faces_indices[face_i+2];
         float res[3]; 
-       lazy_calc_normal(d, e, f, res);
+        lazy_calc_normal(d, e, f, res);
 
         if (calc_dot_product(reference, res) < -0.1)
         {
@@ -159,13 +252,14 @@ void recursive_orient(int vertex_i, float * reference, int ** vertex_in_faces, i
         amount_of_faces_per_vertex);
         recursive_orient(f, res, vertex_in_faces, visited,
         amount_of_faces_per_vertex);
-//    }
     }
+    */
 }
 
-// see here for reading indices & computing normals for every vertex
-// http://openglsamples.sourceforge.net/files/glut_ply.cpp
-// Saves the information from the file given to the bunny ply_object
+/*
+This function reads the ply file and returns a 
+ply_object that describes the file read
+*/
 ply_object read_ply_from_file(const char *file_name)
 {
     //BEGIN PLY FILE HANDLING
@@ -195,9 +289,11 @@ ply_object read_ply_from_file(const char *file_name)
 
 
     #ifdef DEBUG
-    printf("file format says %i vertices, %i faces\n", bunny.amount_of_vertices,
-    bunny.amount_of_faces);
+    printf("file format says %i vertices, %i faces\n", 
+        bunny.amount_of_vertices,
+        bunny.amount_of_faces);
     #endif
+  
     //read vertices
     int i;
     float x;
@@ -206,8 +302,9 @@ ply_object read_ply_from_file(const char *file_name)
 
     //create vertex table for pushing into GLSL
     bunny.vertices = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
-   bunny.tex_coordinates = (float *) malloc(bunny.amount_of_vertices * 2 *
-   sizeof(float)); //only u and v for texture 
+    bunny.tex_coordinates = (float *) malloc(bunny.amount_of_vertices * 2 *
+    sizeof(float)); //only u and v for texture 
+    
     //set the vertex coordinates into bunny.vertices
     for(i = 0; i < bunny.amount_of_vertices; i++) {
         if(fgets(line, LINE_LENGTH, ply) != NULL)
@@ -233,20 +330,25 @@ ply_object read_ply_from_file(const char *file_name)
     
     
     //count the face normals
-    //and 
-    //save the amount of faces per vertex for average calculation of vertex normal
     int amount_of_face_indices;
     int a, b, c;
     int * amount_of_faces_per_vertex = (int *) malloc(bunny.amount_of_vertices * sizeof(int));
-    int * visited = (int*) malloc(bunny.amount_of_vertices*sizeof(int*));
+    
+    bool * visited = (bool*) malloc(bunny.amount_of_faces * sizeof(bool*));
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+        visited[i] = false;
+    }
 
-    int ** vertex_in_faces =(int**) malloc(bunny.amount_of_vertices*sizeof(int*));
-    for (i = 0; i< bunny.amount_of_vertices; i++){
-            vertex_in_faces[i] = malloc(30*sizeof(float)); //hope this is enough
-            visited[i] = 0;
-            //todoo, free vertex_in_faces and visited after they're not needed
+    int ** vertex_in_faces =(int**) malloc(bunny.amount_of_vertices * sizeof(int*));
+    for (i = 0; i < bunny.amount_of_vertices; i++){
+        vertex_in_faces[i] = malloc(9 * sizeof(int)); //hope this is enough
+        int j;
+        for (j = 0; j < 9; j++) {
+            vertex_in_faces[i][j] = 0;
         }
-
+    }
+    //todoo, free vertex_in_faces and visited after they're not needed
+    
     
     for(i = 0; i < bunny.amount_of_faces; i++) {
         fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
@@ -261,7 +363,6 @@ ply_object read_ply_from_file(const char *file_name)
             vertex_in_faces[b][amount_of_faces_per_vertex[b]] = i; 
             vertex_in_faces[c][amount_of_faces_per_vertex[c]] = i; 
 
-            //add count to the amount of faces per vertex
             amount_of_faces_per_vertex[a]++;
             amount_of_faces_per_vertex[b]++;
             amount_of_faces_per_vertex[c]++;
@@ -272,6 +373,7 @@ ply_object read_ply_from_file(const char *file_name)
         }
     }            
    
+   //just choose the face index where to start recursive calculation
    float reference[3];
    lazy_calc_normal(bunny.faces_indices[3*vertex_in_faces[0][0]],
                     bunny.faces_indices[3*vertex_in_faces[0][0]+1], 
@@ -279,7 +381,10 @@ ply_object read_ply_from_file(const char *file_name)
                     reference); 
 //  algorithm doesn't seem to work :(
 //   recursive_orient(0, reference, vertex_in_faces, visited, 
-//   amount_of_faces_per_vertex); 
+//   amount_of_faces_per_vertex);
+
+
+    //count the face normals
     for(i = 0; i < bunny.amount_of_faces; i++) {
             a = bunny.faces_indices[3*i];      
             b = bunny.faces_indices[(3*i)+1];      
@@ -304,52 +409,72 @@ ply_object read_ply_from_file(const char *file_name)
             bunny.faces_normals[(i * 3) + 1] = res[1];
             bunny.faces_normals[(i * 3) + 2] = res[2];
             
-            //add the normal to the vertex_normals 
-             bunny.vertex_normals[(a * 3)] = res[0];
-            bunny.vertex_normals[(a * 3) + 1] = res[1];
-            bunny.vertex_normals[(a * 3) + 2] = res[2];
-           /* 
-            bunny.vertex_normals[b] = res[0];
-            bunny.vertex_normals[b + 1] = res[1];
-            bunny.vertex_normals[b + 2] = res[2];
-
-
-            bunny.vertex_normals[(c * 3)] = res[0];
-            bunny.vertex_normals[(c * 3) + 1] = res[1];
-            bunny.vertex_normals[(c * 3) + 2] = res[2];
-            */
-           //(only add, count average later)
-/*
+    }
+    
+    //check the faces_normals just calculated and turn them around
+    //if needed
+    
+    //choose a reference face (index of the reference face)
+    /*
+    int reference_face_index = 1;
+    recursive_orient(reference_face_index, 
+                    bunny.faces_normals,
+                    bunny.faces_indices,
+                    vertex_in_faces, 
+                    visited);
+    */
+    /*
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+        if(!visited[i]) {
+            printf("face not visited %i\n", i);
+        }
+    }*/
+ 
+    
+    //add the faces normals to the vertex normals
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+            a = bunny.faces_indices[3*i];      
+            b = bunny.faces_indices[(3*i)+1];      
+            c = bunny.faces_indices[(3*i)+2];
+            
+            
+            float res[3] = {
+                bunny.faces_normals[(i * 3)],
+                bunny.faces_normals[(i * 3) + 1],
+                bunny.faces_normals[(i * 3) + 2]
+            };
+            
+           //(only add, normalize later)
             bunny.vertex_normals[(a * 3)] += res[0];
             bunny.vertex_normals[(a * 3) + 1] += res[1];
             bunny.vertex_normals[(a * 3) + 2] += res[2];
             
-            bunny.vertex_normals[b] += res[0];
-            bunny.vertex_normals[b + 1] += res[1];
-            bunny.vertex_normals[b + 2] += res[2];
-
+            bunny.vertex_normals[(b * 3)] += res[0];
+            bunny.vertex_normals[(b * 3) + 1] += res[1];
+            bunny.vertex_normals[(b * 3) + 2] += res[2];
 
             bunny.vertex_normals[(c * 3)] += res[0];
             bunny.vertex_normals[(c * 3) + 1] += res[1];
             bunny.vertex_normals[(c * 3) + 2] += res[2];
-*/
     }
     
-    //count the vertex_normal average
-/*    for(i = 0; i < bunny.amount_of_vertices; i++) {
+    //normalize the vertex normals (average)
+    for(i = 0; i < bunny.amount_of_vertices; i++) {
         float temp[3];
         temp[0] = bunny.vertex_normals[(i * 3)];
-        temp[1] = bunny.vertex_normals[(i*3)+2];
-        temp[2] = bunny.vertex_normals[(i * 3)+2]; 
-
-        float length = sqrt(temp[0]*temp[0] + temp[1]*temp[1] +
-        temp[2]*temp[2]);
-
-        bunny.vertex_normals[i*3] = temp[0]/length;
-        bunny.vertex_normals[i*3+1] = temp[1]/length;
-        bunny.vertex_normals[i*3+2] = temp[2]/length;
+        temp[1] = bunny.vertex_normals[(i * 3) + 1];
+        temp[2] = bunny.vertex_normals[(i * 3) + 2]; 
         
-}*/
+        float normalization = sqrt(temp[0] * temp[0] + temp[1] * temp[1] + temp[2] * temp[2]);
+        temp[0] = temp[0]/normalization;
+        temp[1] = temp[1]/normalization;
+        temp[2] = temp[2]/normalization;
+
+        bunny.vertex_normals[(i * 3)] = temp[0];
+        bunny.vertex_normals[(i * 3) + 1] = temp[1];
+        bunny.vertex_normals[(i * 3) + 2] = temp[2];
+        
+    }
 
     fclose(ply); //close file
 
