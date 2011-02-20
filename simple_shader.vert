@@ -52,7 +52,7 @@ void main (void)
     float foo = 10.0;
     fragment_texcoord = foo*vertex_texcoord; //goes to interpolation
 //    fragment_texcoord = vertex_texcoord; //goes to interpolation
-    fragment_normal = (modelview_matrix * vec4(vertex_normal, 0.0)).xyz;
+    fragment_normal = (projection_matrix * modelview_matrix * vec4(vertex_normal, 0.0)).xyz;
 
     //light 0 is directional
 
@@ -67,11 +67,11 @@ void main (void)
     ambient =  ambient_0+g_ambient;
 
     gl_Position = projection_matrix * modelview_matrix * vec4 (vertex_position, 1.0);
+    
     //halfway vector is the "average" of position vector and light vector in
     //eye space. position *should* be the inverse of eye vector after
     //transform
-    halfway_vector0 = normalize(light_direction-gl_Position);
-
+    halfway_vector0 = normalize(light_direction-gl_Position.xyz);
 }
 
 

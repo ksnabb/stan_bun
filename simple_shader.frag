@@ -67,7 +67,7 @@ void main (void)
 //    fragment_Color = vec4(color.rgb , 1.0);
     fragment_Color = 
 //    ambient + 
-//    fragment_diffuse * ndotl;
+//   fragment_diffuse * ndotl;
     material.specular*light0.specular*pow(ndothv, 12.0);
 }
 
