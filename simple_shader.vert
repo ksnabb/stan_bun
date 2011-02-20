@@ -49,9 +49,9 @@ void main (void)
 {
     light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
 
-//    float foo = 0.333;
-//    fragment_texcoord = foo*vertex_texcoord; //goes to interpolation
-    fragment_texcoord = vertex_texcoord; //goes to interpolation
+    float foo = 10.333;
+    fragment_texcoord = foo*vertex_texcoord; //goes to interpolation
+//    fragment_texcoord = vertex_texcoord; //goes to interpolation
     fragment_normal = (modelview_matrix * vec4(vertex_normal, 0.0)).xyz;
 
     //light 0 is directional

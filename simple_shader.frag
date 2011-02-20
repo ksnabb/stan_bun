@@ -56,8 +56,8 @@ void main (void)
         1.0);
     }
 
+    vec3 tex_col = texture2D(my_texture, fragment_texcoord).rgb;
 
-    fragment_Color = color + texture2D(my_texture,
-    fragment_texcoord);
+    fragment_Color = vec4(color.rgb * tex_col.rgb, material.diffuse.a); 
 }
 
