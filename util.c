@@ -85,7 +85,7 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
     float v1[3];
     float v2[3];
     float *r = returnme;
-    float normalization;
+    //float normalization;
     
     //compute vectors
     v1[0] = first[0] - second[0];
@@ -102,10 +102,12 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
     r[2] = v1[0]*v2[1]- v2[0]*v1[1];
 
     // just calculate the normal the normalization should happen elsewhere
-    normalization = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
-    r[0] = r[0]/normalization;
-    r[1] = r[1]/normalization;
-    r[2] = r[2]/normalization;
+    // the area of the triangle is important to weight the normal compared
+    // to other normals
+    //normalization = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
+    //r[0] = r[0]/normalization;
+    //r[1] = r[1]/normalization;
+    //r[2] = r[2]/normalization;
 
 }
 
@@ -140,7 +142,6 @@ void recursive_orient(int face_index,
         return;
     
     //mark this face as visited
-    //printf("mark face as visited: %i\n", face_index);
     visited[face_index] = true;
     
     //current_face normal
@@ -182,7 +183,12 @@ void recursive_orient(int face_index,
                 faces_normals[(fi1 * 3) + 1],
                 faces_normals[(fi1 * 3) + 2]  
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < 0) {
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
+                int i1 = bunny.faces_indices[fi1+1];
+                int i2 = bunny.faces_indices[fi1+2];
+                bunny.faces_indices[fi1+2] = i1;
+                bunny.faces_indices[fi1+1] = i2;
+                
                 faces_normals[(fi1 * 3)] = -faces_normals[(fi1 * 3)];
                 faces_normals[(fi1 * 3) + 1] = -faces_normals[(fi1 * 3) + 1];
                 faces_normals[(fi1 * 3) + 2] = -faces_normals[(fi1 * 3) + 2];
@@ -199,7 +205,13 @@ void recursive_orient(int face_index,
                 faces_normals[(fi2 * 3) + 1],
                 faces_normals[(fi2 * 3) + 2]
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < 0) {
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
+                int i1 = bunny.faces_indices[fi2+1];
+                int i2 = bunny.faces_indices[fi2+2];
+                bunny.faces_indices[fi2+2] = i1;
+                bunny.faces_indices[fi2+1] = i2;
+            
+                
                 faces_normals[(fi2 * 3)] = -faces_normals[(fi2 * 3)];
                 faces_normals[(fi2 * 3) + 1] = -faces_normals[(fi2 * 3) + 1];
                 faces_normals[(fi2 * 3) + 2] = -faces_normals[(fi2 * 3) + 2];
@@ -216,7 +228,13 @@ void recursive_orient(int face_index,
                 faces_normals[(fi3 * 3) + 1],
                 faces_normals[(fi3 * 3) + 2]
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < 0) {
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
+                int i1 = bunny.faces_indices[fi3+1];
+                int i2 = bunny.faces_indices[fi3+2];
+                bunny.faces_indices[fi3+2] = i1;
+                bunny.faces_indices[fi3+1] = i2;
+                
+                
                 faces_normals[(fi3 * 3)] = -faces_normals[(fi3 * 3)];
                 faces_normals[(fi3 * 3) + 1] = -faces_normals[(fi3 * 3) + 1];
                 faces_normals[(fi3 * 3) + 2] = -faces_normals[(fi3 * 3) + 2];
@@ -415,21 +433,13 @@ ply_object read_ply_from_file(const char *file_name)
     //if needed
     
     //choose a reference face (index of the reference face)
-    /*
-    int reference_face_index = 1;
+    
+    int reference_face_index = 7025;
     recursive_orient(reference_face_index, 
                     bunny.faces_normals,
                     bunny.faces_indices,
                     vertex_in_faces, 
                     visited);
-    */
-    /*
-    for(i = 0; i < bunny.amount_of_faces; i++) {
-        if(!visited[i]) {
-            printf("face not visited %i\n", i);
-        }
-    }*/
- 
     
     //add the faces normals to the vertex normals
     for(i = 0; i < bunny.amount_of_faces; i++) {
