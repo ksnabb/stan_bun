@@ -57,7 +57,6 @@ void main (void)
     }
 
 
-    fragment_Color = color + texture2D(my_texture,
-    fragment_texcoord);
+    fragment_Color = color + texture2D(my_texture, fragment_texcoord);
 }
 
