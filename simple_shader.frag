@@ -40,23 +40,29 @@ void main (void)
     vec3 n;
     float ndotl;
     vec4 color;
-    
+    vec4 specular = vec4(0.0,0.0,0.0,0.0); 
+    vec4 diffuse = vec4(0.0,0.0,0.0,0.0); 
     n = normalize (fragment_normal);
-    
-    ndotl = max (dot(n, light_direction), 0.0);
-    //better for testing normals
-//   fragment_Color = fragment_diffuse * ndotl ;
+    vec3 ld = normalize(light_direction);
+    vec4 tex_col = texture2D(my_texture, fragment_texcoord);
+    vec4 ambient_t = ambient * tex_col;
+    vec4 diffuse_t = fragment_diffuse * tex_col;
+    vec4 specular_t = material.specular * tex_col;
 
-    color = ambient;
+    
+    ndotl = max (dot(n, ld), 0.0);
+
+    color = ambient_t;
  //if specular is possible, compute
     if (ndotl > 0.0){
-        color += fragment_diffuse * ndotl;
+        diffuse = diffuse_t * ndotl;
         float ndothv = max(dot(fragment_normal, halfway_vector0),0.0);
-        color += material.specular * light0.specular * pow(ndothv,
-        1.0);
+        specular = specular_t * light0.specular * pow(ndothv,
+        material.shininess);
     }
+    color = color + diffuse + specular;
 
 
-    fragment_Color = color + texture2D(my_texture, fragment_texcoord);
+    fragment_Color = vec4(color.rgb , 1.0);
 }
 
