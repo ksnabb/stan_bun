@@ -46,7 +46,7 @@ void main (void)
     n = normalize (fragment_normal);
     vec3 h = normalize(halfway_vector0);
     vec3 ld = normalize(light_direction);
-    vec4 tex_col = texture2D(my_texture, fragment_texcoord);
+    vec4 tex_col = texture2D(my_texture, fragment_texcoord).bgra;
     vec4 ambient_t = ambient * tex_col;
     vec4 diffuse_t = fragment_diffuse * tex_col;
     vec4 specular_t = material.specular * tex_col;
