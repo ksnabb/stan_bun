@@ -153,7 +153,6 @@ void recursive_orient(int face_index,
         faces_normals[(face_index * 3) + 1],
         faces_normals[(face_index * 3) + 2]
     };
-
     
     //vertex indices that is connected to the current_face
     int vi1 = faces_indices[(face_index * 3)];
@@ -166,69 +165,75 @@ void recursive_orient(int face_index,
         int fi1 = vertex_in_faces[vi1][i];
         int fi2 = vertex_in_faces[vi2][i];
         int fi3 = vertex_in_faces[vi3][i];
-
-        if(fi1 != -1 && fi1 != face_index) {
+        
+        if(fi1 != -1 && fi1 != face_index && !visited[fi1]) {
             float nface_normal[3] = {
                 faces_normals[(fi1 * 3)],
                 faces_normals[(fi1 * 3) + 1],
                 faces_normals[(fi1 * 3) + 2]  
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < -0.3) {
-                int i1 = bunny.faces_indices[(fi1 *3)+1];
-                int i2 = bunny.faces_indices[(fi1 *3)+2];
-                bunny.faces_indices[(fi1 *3)+2] = i1;
-                bunny.faces_indices[(fi1 *3)+1] = i2;
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
+                //int i1 = bunny.faces_indices[(fi1 *3)+1];
+                //int i2 = bunny.faces_indices[(fi1 *3)+2];
+                //bunny.faces_indices[(fi1 *3)+2] = i1;
+                //bunny.faces_indices[(fi1 *3)+1] = i2;
                 
                 faces_normals[(fi1 * 3)] = -faces_normals[(fi1 * 3)];
                 faces_normals[(fi1 * 3) + 1] = -faces_normals[(fi1 * 3) + 1];
                 faces_normals[(fi1 * 3) + 2] = -faces_normals[(fi1 * 3) + 2];
             }
-            recursive_orient(fi1, 
-                    faces_normals, 
-                    faces_indices, 
-                    vertex_in_faces,
-                    visited);
         }
-        if(fi2 != -1 && fi2 != face_index) {
+        if(fi2 != -1 && fi2 != face_index && !visited[fi1]) {
             float nface_normal[3] = {
                 faces_normals[(fi2 * 3)],
                 faces_normals[(fi2 * 3) + 1],
                 faces_normals[(fi2 * 3) + 2]
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < -0.3) {
-                int i1 = bunny.faces_indices[(fi2 * 3)+1];
-                int i2 = bunny.faces_indices[(fi2 * 3)+2];
-                bunny.faces_indices[(fi2 * 3)+2] = i1;
-                bunny.faces_indices[(fi2 * 3)+1] = i2;
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
+                //int i1 = bunny.faces_indices[(fi2 * 3)+1];
+                //int i2 = bunny.faces_indices[(fi2 * 3)+2];
+                //bunny.faces_indices[(fi2 * 3)+2] = i1;
+                //bunny.faces_indices[(fi2 * 3)+1] = i2;
             
                 
                 faces_normals[(fi2 * 3)] = -faces_normals[(fi2 * 3)];
                 faces_normals[(fi2 * 3) + 1] = -faces_normals[(fi2 * 3) + 1];
                 faces_normals[(fi2 * 3) + 2] = -faces_normals[(fi2 * 3) + 2];
             }
-            recursive_orient(fi2, 
-                    faces_normals, 
-                    faces_indices, 
-                    vertex_in_faces,
-                    visited);
         }
-        if(fi3 != -1 && fi3 != face_index) {
+        if(fi3 != -1 && fi3 != face_index && !visited[fi1]) {
             float nface_normal[3] = {
                 faces_normals[(fi3 * 3)],
                 faces_normals[(fi3 * 3) + 1],
                 faces_normals[(fi3 * 3) + 2]
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < -0.3) {
-                int i1 = bunny.faces_indices[(fi3 * 3)+1];
-                int i2 = bunny.faces_indices[(fi3 * 3)+2];
-                bunny.faces_indices[(fi3 * 3) + 2] = i1;
-                bunny.faces_indices[(fi3 * 3) + 1] = i2;
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
+                //int i1 = bunny.faces_indices[(fi3 * 3)+1];
+                //int i2 = bunny.faces_indices[(fi3 * 3)+2];
+                //bunny.faces_indices[(fi3 * 3) + 2] = i1;
+                //bunny.faces_indices[(fi3 * 3) + 1] = i2;
                 
                 
                 faces_normals[(fi3 * 3)] = -faces_normals[(fi3 * 3)];
                 faces_normals[(fi3 * 3) + 1] = -faces_normals[(fi3 * 3) + 1];
                 faces_normals[(fi3 * 3) + 2] = -faces_normals[(fi3 * 3) + 2];
             }
+        }
+        if(fi1 != -1) {
+            recursive_orient(fi1, 
+                    faces_normals, 
+                    faces_indices, 
+                    vertex_in_faces,
+                    visited);
+        }
+        if(fi2 != -1) {           
+            recursive_orient(fi2, 
+                    faces_normals, 
+                    faces_indices, 
+                    vertex_in_faces,
+                    visited);
+        }
+        if(fi3 != -1) {    
             recursive_orient(fi3, 
                     faces_normals, 
                     faces_indices, 
@@ -400,7 +405,7 @@ ply_object read_ply_from_file(const char *file_name)
     //if needed
     
     //choose a reference face (index of the reference face)
-    
+   
     int reference_face_index = 0;//7025;
     recursive_orient(reference_face_index, 
                     bunny.faces_normals,
