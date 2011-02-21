@@ -14,7 +14,7 @@
 //Triangle indices for the bunny
 int * bunny_indices;
 GLuint vertex_ID;
-GLuint texture_ID;
+GLuint texture_ID[2];
 int * vertex_count;
 GLuint p; //program
 GLuint time = 0; //for animation
@@ -126,14 +126,14 @@ void set_shaders(){
     
 }
 //loads our only texture
-void load_texture(char * filename){
-    GLuint n_textures = 1;
+void load_textures(char * filename1, char * filename2){
+    GLuint n_textures = 2;
 //    texture_id is global
-    glGenTextures(n_textures, &texture_ID);
+    glGenTextures(n_textures, texture_ID);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_ID[0]);
 
-    glBindTexture(GL_TEXTURE_2D, texture_ID);
-
-    img_data * tex = simple_bmp_read(filename);
+    img_data * tex = simple_bmp_read(filename1);
     img_data mytex = *tex;
     #ifdef DEBUG
     printf("attaching an %i by %i texture image from %p\n", mytex.width,
@@ -145,12 +145,22 @@ void load_texture(char * filename){
 //    glTexImage2D(GL_TEXTURE_2D,0, GL_RGBA, mytex.width, mytex.height,0,
 //    GL_RGBA, GL_UNSIGNED_BYTE, mytex.rgbstart);
 
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture_ID[1]);
+    img_data *tex2 = simple_bmp_read(filename2);
+    img_data mytex2 = *tex2;
+    
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, mytex2.width, mytex2.height,
+    GL_RGB, GL_UNSIGNED_BYTE, mytex2.whole+mytex2.rgbstart);
+
     glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
     free(mytex.whole);
     free(tex);
+    free(mytex2.whole);
+    free(tex2);
     }
 
 int main (int argc, char **argv)
@@ -158,7 +168,11 @@ int main (int argc, char **argv)
     #ifdef DEBUG
     printf("starting main function\n");
     #endif
-
+    if (argc != 3){
+        printf("incorrect usage, please give 2 names of textures as command"
+        "line parameters!");
+        exit(-1);
+        }
 
 	//initialize glut, create a window
     glutInit (&argc, argv);
@@ -301,7 +315,7 @@ int main (int argc, char **argv)
     printf("reading texture\n");
     #endif
     
-    load_texture("./texture.bmp");
+    load_textures(argv[1], argv[2]);
 
     //initialize lights and materials here 
     material.shininess = 40.0;
@@ -421,11 +435,17 @@ void display_cb(void)
     glGetUniformfv(p, location_light_pos,temp);
     printf("color %f, %f, %f\n", temp[0], temp[1], temp[2]);
 */
-    //create sampler
-    int texture_sampler = glGetUniformLocation(p, "my_texture");
+    //create samplers
+    int texture_sampler = glGetUniformLocation(p, "first_texture");
     glUniform1i(texture_sampler, 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_ID);
+    glBindTexture(GL_TEXTURE_2D, texture_ID[0]);
+    
+    int texture_sampler2 = glGetUniformLocation(p, "second_texture");
+    glUniform1i(texture_sampler2, 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture_ID[1]);
+
 
 	//here goes actual drawing code
 	glFrontFace(GL_CCW);

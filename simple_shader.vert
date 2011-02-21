@@ -42,6 +42,7 @@ out vec4 fragment_diffuse;
 out vec4 fragment_color;
 out vec4 ambient;
 out vec3 halfway_vector0;
+out int texture_id;
 
 void main (void)
 {
@@ -63,6 +64,12 @@ void main (void)
     //light 1 not implemented yet
 
     ambient =  ambient_0+g_ambient;
+
+    //if (vertex_position.x>vertex_position.y){
+        texture_id = 1;
+    //    }else{
+    //    texture_id = 2;    
+    //    }
 
     vec3 mutable_position = vertex_position;
     if (time > 0){//animation

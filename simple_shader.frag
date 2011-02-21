@@ -24,7 +24,9 @@ struct material_params{
 
 uniform vec4 base_color;
 out vec4 fragment_Color;
-uniform sampler2D my_texture;
+uniform sampler2D first_texture;
+uniform sampler2D second_texture;
+//in int texture_id;
 in vec3 fragment_normal;
 in vec3 light_direction;
 uniform material_params material;
@@ -38,6 +40,7 @@ in vec3 halfway_vector0;
 
 void main (void)
 {
+    int texture_id = 2;
     vec3 n;
     float ndotl;
     vec4 color;
@@ -46,7 +49,14 @@ void main (void)
     n = normalize (fragment_normal);
     vec3 h = normalize(halfway_vector0);
     vec3 ld = normalize(light_direction);
-    vec4 tex_col = texture2D(my_texture, fragment_texcoord).bgra;
+
+    vec4 tex_col;
+    if(texture_id == 1){
+        tex_col = texture2D(first_texture, fragment_texcoord).bgra;
+    } else {
+        tex_col = texture2D(second_texture, fragment_texcoord).bgra;
+    }
+
     vec4 ambient_t = ambient * tex_col;
     vec4 diffuse_t = fragment_diffuse * tex_col;
     vec4 specular_t = material.specular * tex_col;
