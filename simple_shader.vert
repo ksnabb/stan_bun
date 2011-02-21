@@ -66,7 +66,7 @@ void main (void)
     ambient =  ambient_0+g_ambient;
 
     if (twotex == 1){
-        if(vertex_position.x > vertex_position.z){
+        if(vertex_position.x < vertex_position.z){
             texture_select = 2.0;
         }else{
             texture_select = 1.0;
