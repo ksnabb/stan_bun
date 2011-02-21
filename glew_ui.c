@@ -200,10 +200,10 @@ void window_resize_cb(int width, int height){
 
 	// Set the correct perspective.
 	gluPerspective(45,ratio,1,1000);
-	glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(0.0,0.0,5.0, 
-		      0.0,0.0,-1.0,
+          0.0,0.0,-1.0,
 			  0.0f,1.0f,0.0f);
 
     //int old_height, old_width;
