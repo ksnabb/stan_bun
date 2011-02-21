@@ -358,7 +358,6 @@ int main (int argc, char **argv)
     printf(" attaching display function and running main loop\n");
     #endif
 
-
 	glutDisplayFunc(display_cb);
 	glutMainLoop ();
 	return 0;
@@ -459,7 +458,12 @@ void display_cb(void)
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    
+
+    //z-buffering
+    glDepthFunc(GL_LESS);
+    glDepthRange(0.0, 1.0);
+    glEnable(GL_DEPTH_TEST);
+
     //vertex array
     glBindVertexArray (vertex_ID);
     
