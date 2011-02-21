@@ -17,6 +17,7 @@
  
 extern projection_data proj;
 extern modelview_data mod;
+extern GLuint time;
 
 float MOVE_STEP = 0.1;
 
@@ -24,7 +25,8 @@ float MOVE_STEP = 0.1;
 
 void mouse_cb(int button, int state, int x, int y)
 {
-    printf("mouse wheel moved %i %i %i %i\n", button, state, x, y);
+    
+//    printf("mouse wheel moved %i %i %i %i\n", button, state, x, y);
     switch(button)
     {
     case(3):
@@ -95,6 +97,15 @@ void keyb_cb(unsigned char key, int x, int y)
     case(27): //esc
         exit(0);
         break;
+    case(32): //spacebar
+        printf("toggling animation\n");
+        if (time != 0){
+            time = 0;
+        }
+        else{
+            time = 1;
+        }
+        break;
     }
 }
 
@@ -164,7 +175,10 @@ void sp_keyb_cb(int key, int x, int y)
 
 
 void timer_cb(int value){
-// display_cb();
+       if (time > 0)
+          time++;
+        glutTimerFunc(100, timer_cb, 0);
+        display_cb();
     }
 
 //resizes window

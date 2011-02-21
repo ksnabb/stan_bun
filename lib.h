@@ -45,7 +45,7 @@ typedef struct {
     int width;
     int height;
     GLchar * whole;
-    GLchar * rgbstart;
+    int rgbstart;
 
 } img_data;
 

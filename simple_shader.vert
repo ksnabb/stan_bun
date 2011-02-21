@@ -30,13 +30,11 @@ uniform material_params material;
 uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
 uniform mat4 normal_matrix;
+uniform int time;
 in vec3 vertex_position;
 in vec3 vertex_normal;
 in vec2 vertex_texcoord;
-uniform vec3 light_location;
-uniform vec4 light_color;
 uniform vec4 base_color;
-//out vec3 halfway_vector;
 out vec3 fragment_normal;
 out vec2 fragment_texcoord;
 out vec3 light_direction;
@@ -47,7 +45,7 @@ out vec3 halfway_vector0;
 
 void main (void)
 {
-    light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
+//    light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
 
     float foo = 10.0;
     fragment_texcoord = foo*vertex_texcoord; //goes to interpolation
@@ -66,7 +64,13 @@ void main (void)
 
     ambient =  ambient_0+g_ambient;
 
-    gl_Position = projection_matrix * modelview_matrix * vec4 (vertex_position, 1.0);
+    vec3 mutable_position = vertex_position;
+    if (time > 0){//animation
+        mutable_position.y += sin(mutable_position.x*10 + time*0.1)*0.05;
+    }
+
+    gl_Position = projection_matrix * modelview_matrix * vec4
+    (mutable_position, 1.0);
     
     //halfway vector is the "average" of position vector and light vector in
     //eye space. position *should* be the inverse of eye vector after

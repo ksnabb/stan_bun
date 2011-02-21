@@ -17,7 +17,7 @@ GLuint vertex_ID;
 GLuint texture_ID;
 int * vertex_count;
 GLuint p; //program
-
+GLuint time = 0; //for animation
 
 //bunny as global so that it can be accessed from any function
 ply_object bunny;
@@ -136,11 +136,11 @@ void load_texture(char * filename){
     img_data mytex = *tex;
     #ifdef DEBUG
     printf("attaching an %i by %i texture image from %p\n", mytex.width,
-    mytex.height, mytex.rgbstart);
+    mytex.height, mytex.whole+mytex.rgbstart);
     #endif
 
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, mytex.width, mytex.height,
-    GL_RGB, GL_UNSIGNED_BYTE, mytex.whole+0x000A);
+    GL_RGB, GL_UNSIGNED_BYTE, mytex.whole+mytex.rgbstart);
 //    glTexImage2D(GL_TEXTURE_2D,0, GL_RGBA, mytex.width, mytex.height,0,
 //    GL_RGBA, GL_UNSIGNED_BYTE, mytex.rgbstart);
 
@@ -183,7 +183,7 @@ int main (int argc, char **argv)
 	glutMotionFunc(mouse_motion_cb);
 	glutMouseFunc(mouse_cb);
 	glutSpecialFunc(sp_keyb_cb);
-    glutTimerFunc(1000, timer_cb, 0);
+    glutTimerFunc(100, timer_cb, 0);
     glutReshapeFunc(window_resize_cb);
 
     //initialize modelview and projection matrices
@@ -405,7 +405,10 @@ void display_cb(void)
      material.shininess);
 
 
-    
+   //time step for animation
+//   if (time > 0)
+//       time++;
+    glUniform1i(glGetUniformLocation(p, "time"),time);
 
 //    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
 //

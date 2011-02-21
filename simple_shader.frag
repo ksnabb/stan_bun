@@ -61,7 +61,7 @@ void main (void)
  //if specular is possible, compute
     if (ndotl > 0.0){
         diffuse = diffuse_t * ndotl;
-        specular = specular_t * light0.specular * pow(ndothv,
+        specular = material.specular * light0.specular * pow(ndothv,
         material.shininess);
     }
 

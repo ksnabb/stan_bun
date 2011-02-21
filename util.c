@@ -61,7 +61,7 @@ img_data * simple_bmp_read(char * file_name)
     #ifdef DEBUG
     printf("file is %i bytes \n", *((int*)&(*pic_p).whole[0x0002]));
     #endif
-    (*pic_p).rgbstart = (GLchar*)&(*pic_p).whole+0x000A; //start of file table
+    (*pic_p).rgbstart = *((int*)&(*pic_p).whole[0x000A]); //start of file table
     (*pic_p).width = *((int*)&(*pic_p).whole[0x0012]); 
     (*pic_p).height = *((int*)&(*pic_p).whole[0x0016]); 
 
