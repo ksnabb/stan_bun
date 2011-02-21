@@ -38,7 +38,8 @@ typedef struct {
     float up_y;
     float up_z;
     float angle;
-
+    float rotate;
+    float scale;
 } modelview_data;
 
 typedef struct {
