@@ -29,6 +29,7 @@ in vec3 fragment_normal;
 in vec3 light_direction;
 uniform material_params material;
 uniform light_params light0;
+uniform int toon;
 
 in vec4 fragment_diffuse;
 in vec2 fragment_texcoord;
@@ -73,5 +74,19 @@ void main (void)
 //    ambient + 
 //   fragment_diffuse * ndotl+
 //    material.specular*light0.specular*pow(ndothv, 12.0);
+    if (toon >0){
+        float intensity = (ndotl + pow(ndothv, material.shininess))/2;
+
+        if (intensity < 0) {
+            fragment_Color = vec4(0.0,0.0,0.0,1.0);
+        }else if (intensity < 0.25){
+            fragment_Color = vec4(0.3,0.3,0.3,1.0)*vec4(tex_col.rgb,1.0);
+        }else if (intensity < 0.5){
+            fragment_Color = vec4(0.6,0.6,0.6,1.0)*vec4(tex_col.rgb,1.0);
+        }else if (intensity < 0.95){
+            fragment_Color = vec4(1.0,1.0,1.0,1.0)*vec4(tex_col.rgb,1.0);
+        }
+    }
+
 }
 

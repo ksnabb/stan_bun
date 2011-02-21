@@ -18,6 +18,7 @@ GLuint texture_ID;
 int * vertex_count;
 GLuint p; //program
 GLuint time = 0; //for animation
+GLuint toon = 0; //for toon shading
 
 //bunny as global so that it can be accessed from any function
 ply_object bunny;
@@ -409,6 +410,7 @@ void display_cb(void)
 //   if (time > 0)
 //       time++;
     glUniform1i(glGetUniformLocation(p, "time"),time);
+    glUniform1i(glGetUniformLocation(p, "toon"),toon);
 
 //    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
 //

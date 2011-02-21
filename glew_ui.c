@@ -18,6 +18,7 @@
 extern projection_data proj;
 extern modelview_data mod;
 extern GLuint time;
+extern GLuint toon;
 
 float MOVE_STEP = 0.1;
 
@@ -99,12 +100,11 @@ void keyb_cb(unsigned char key, int x, int y)
         break;
     case(32): //spacebar
         printf("toggling animation\n");
-        if (time != 0){
-            time = 0;
-        }
-        else{
-            time = 1;
-        }
+        time = time > 0 ? 0:1;
+        break;
+    case('t'): //toggle toon shader
+        printf("toggling toon shader\n");
+        toon = toon > 0 ? 0:1;
         break;
     }
 }
