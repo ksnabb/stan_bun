@@ -111,6 +111,7 @@ void calc_normal(float * first, float * second, float * third, float * returnme)
 
 }
 
+
 void lazy_calc_normal(int a, int b, int c, float*ret){
              //point vectors to the vertices for the triangle
             float v1[3] = {bunny.vertices[(a * 3)], 
