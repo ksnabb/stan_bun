@@ -50,10 +50,10 @@ void main (void)
     vec3 ld = normalize(light_direction);
 
     vec4 tex_col;
-    if(texture_select < 1.5){
-        tex_col = texture2D(texture_1, fragment_texcoord);
+    if(texture_select < 1.8){
+        tex_col = texture2D(texture_1, fragment_texcoord).bgra;
     }else{
-        tex_col = texture2D(texture_2, fragment_texcoord);
+        tex_col = texture2D(texture_2, fragment_texcoord).bgra;
     }
 
     vec4 ambient_t = ambient * tex_col;
