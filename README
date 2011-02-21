@@ -14,6 +14,9 @@ You can navigate by using the mouse. Scrollweel zooms in and out (as do
 buttons a and z on the keyboard) and moving the mouse while pressing left
 button and using the arrow keys rotate the object.
 
+Keyboard buttons a and z zoom in and out and arrow keys rotates the
+view.
+
 ## Completed
 * loading object: yes
 * fixing broken normals: tried but not quite :(
