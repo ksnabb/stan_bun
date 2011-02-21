@@ -35,18 +35,18 @@ in vec3 vertex_position;
 in vec3 vertex_normal;
 in vec2 vertex_texcoord;
 uniform vec4 base_color;
+uniform int twotex;
 out vec3 fragment_normal;
 out vec2 fragment_texcoord;
 out vec3 light_direction;
 out vec4 fragment_diffuse;
-out vec4 fragment_color;
 out vec4 ambient;
 out vec3 halfway_vector0;
-out int texture_id;
+out float texture_select;
+
 
 void main (void)
 {
-//    light_direction = normalize((modelview_matrix * vec4 (light_location, 0.0)).xyz);
 
     float foo = 10.0;
     fragment_texcoord = foo*vertex_texcoord; //goes to interpolation
@@ -65,11 +65,13 @@ void main (void)
 
     ambient =  ambient_0+g_ambient;
 
-    //if (vertex_position.x>vertex_position.y){
-        texture_id = 1;
-    //    }else{
-    //    texture_id = 2;    
-    //    }
+    if (twotex == 1){
+        if(vertex_position.x > vertex_position.z){
+            texture_select = 2.0;
+        }else{
+            texture_select = 1.0;
+        }
+    }
 
     vec3 mutable_position = vertex_position;
     if (time > 0){//animation

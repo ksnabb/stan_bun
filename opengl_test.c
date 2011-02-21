@@ -19,6 +19,7 @@ int * vertex_count;
 GLuint p; //program
 GLuint time = 0; //for animation
 GLuint toon = 0; //for toon shading
+GLuint twotex = 0; //for toon shading
 
 //bunny as global so that it can be accessed from any function
 ply_object bunny;
@@ -130,7 +131,7 @@ void load_textures(char * filename1, char * filename2){
     GLuint n_textures = 2;
 //    texture_id is global
     glGenTextures(n_textures, texture_ID);
-    glActiveTexture(GL_TEXTURE0);
+//    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_ID[0]);
 
     img_data * tex = simple_bmp_read(filename1);
@@ -142,10 +143,16 @@ void load_textures(char * filename1, char * filename2){
 
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, mytex.width, mytex.height,
     GL_RGB, GL_UNSIGNED_BYTE, mytex.whole+mytex.rgbstart);
-//    glTexImage2D(GL_TEXTURE_2D,0, GL_RGBA, mytex.width, mytex.height,0,
-//    GL_RGBA, GL_UNSIGNED_BYTE, mytex.rgbstart);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, GL_REPEAT);
+ 
 
-    glActiveTexture(GL_TEXTURE1);
+//    glTexImage2D(GL_TEXTURE_2D,0, GL_RGB, mytex.width, mytex.height,0,
+//    GL_RGB, GL_UNSIGNED_BYTE, mytex.whole+mytex.rgbstart);
+
+//    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture_ID[1]);
     img_data *tex2 = simple_bmp_read(filename2);
     img_data mytex2 = *tex2;
@@ -168,9 +175,9 @@ int main (int argc, char **argv)
     #ifdef DEBUG
     printf("starting main function\n");
     #endif
-    if (argc != 3){
-        printf("incorrect usage, please give 2 names of textures as command"
-        "line parameters!");
+    if (argc != 4){
+        printf("incorrect usage, please give ply file and 2 names of" 
+        "(24-bit BMP)textures as command line parameters!");
         exit(-1);
         }
 
@@ -234,8 +241,7 @@ int main (int argc, char **argv)
     #endif
    
     //read bunny from file
-    char * filename = "bunny/reconstruction/bun_zipper.ply"; 
-    read_ply_from_file(filename);
+    read_ply_from_file(argv[1]);
       
           
     //setting up the vertex array and then buffers
@@ -315,7 +321,7 @@ int main (int argc, char **argv)
     printf("reading texture\n");
     #endif
     
-    load_textures(argv[1], argv[2]);
+    load_textures(argv[2], argv[3]);
 
     //initialize lights and materials here 
     material.shininess = 40.0;
@@ -425,6 +431,7 @@ void display_cb(void)
 //       time++;
     glUniform1i(glGetUniformLocation(p, "time"),time);
     glUniform1i(glGetUniformLocation(p, "toon"),toon);
+    glUniform1i(glGetUniformLocation(p, "twotex"),twotex);
 
 //    printf("uniform locations %i, %i, %i, %i, %i\n", location_base_color,
 //
@@ -436,15 +443,15 @@ void display_cb(void)
     printf("color %f, %f, %f\n", temp[0], temp[1], temp[2]);
 */
     //create samplers
-    int texture_sampler = glGetUniformLocation(p, "first_texture");
-    glUniform1i(texture_sampler, 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_ID[0]);
+    int texture_sampler = glGetUniformLocation(p, "texture_1");
+    glUniform1i(texture_sampler, 0);
     
-    int texture_sampler2 = glGetUniformLocation(p, "second_texture");
-    glUniform1i(texture_sampler2, 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture_ID[1]);
+    int texture_sampler2 = glGetUniformLocation(p, "texture_2");
+    glUniform1i(texture_sampler2, 1);
 
 
 	//here goes actual drawing code

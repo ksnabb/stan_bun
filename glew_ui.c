@@ -19,6 +19,7 @@ extern projection_data proj;
 extern modelview_data mod;
 extern GLuint time;
 extern GLuint toon;
+extern GLuint twotex;
 
 float MOVE_STEP = 0.1;
 
@@ -105,6 +106,10 @@ void keyb_cb(unsigned char key, int x, int y)
     case('t'): //toggle toon shader
         printf("toggling toon shader\n");
         toon = toon > 0 ? 0:1;
+        break;
+    case('2'): //toggle two textures
+        printf("toggling two textures\n");
+        twotex = twotex > 0 ? 0:1;
         break;
     }
 }
