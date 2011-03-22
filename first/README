@@ -52,3 +52,8 @@ appropriate algorithm).
 For some reason reading BMP files in the appropriate order (not RGB) didn't
 work as specified so we are flipping the colors back to their original places
 in the shader.
+
+
+Made By:
+Jyry Suvilehto 64555P
+Kristoffer Snabb 57872V
