@@ -27,14 +27,14 @@ GLchar * simple_fileread(char * file_name, GLint * length)
         return NULL;
         }
     int currentsize = 128;
-    GLchar * shader = malloc(currentsize*sizeof(char));
+    GLchar * shader = (char *) malloc(currentsize*sizeof(char));
     char c;
     while((c = fgetc(src)) != EOF)
     {
         shader[chars] = c;
         chars++;
         if (chars >= currentsize){
-            shader = realloc(shader, 2*currentsize*sizeof(char));
+            shader = (char *) realloc(shader, 2*currentsize*sizeof(char));
             currentsize = 2*currentsize;
         }
     }
@@ -294,7 +294,7 @@ ply_object read_ply_from_file(const char *file_name)
     bunny.faces_indices = (int *) malloc(bunny.amount_of_faces * 3 * sizeof(int));
     
     //we need the face normal to be able to shade the faces correclty
-    bunny.faces_normals = malloc(bunny.amount_of_faces * 3 * sizeof(float));
+    bunny.faces_normals = (float *) malloc(bunny.amount_of_faces * 3 * sizeof(float));
     
     //the vertex normals
     bunny.vertex_normals = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
@@ -315,7 +315,7 @@ ply_object read_ply_from_file(const char *file_name)
 
     int ** vertex_in_faces =(int**) malloc(bunny.amount_of_vertices * sizeof(int*));
     for (i = 0; i < bunny.amount_of_vertices; i++){
-        vertex_in_faces[i] = malloc(9 * sizeof(int)); //hope this is enough
+        vertex_in_faces[i] = (int *)malloc(9 * sizeof(int)); //hope this is enough
         int j;
         for (j = 0; j < 9; j++) {
             vertex_in_faces[i][j] = -1;

@@ -49,13 +49,13 @@ void set_shaders(){
     GLint vlen = 0;
     GLint flen = 0;
     
-    vs = simple_fileread("simple_shader.vert", &vlen);
+    vs = simple_fileread((char *)"simple_shader.vert", &vlen);
 
     #ifdef DEBUG
     printf("loaded vertex shader with %i chars\n", vlen);
     #endif
     
-    fs = simple_fileread("simple_shader.frag", &flen);
+    fs = simple_fileread((char *)"simple_shader.frag", &flen);
     
     #ifdef DEBUG
     printf("loaded fragment shader with %i characters\n",flen);

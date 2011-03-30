@@ -1,10 +1,10 @@
 ALL = test
 
-CC = gcc
+CC = g++
 
 LIBS = rply
 
-FLAGS = -std=c99 -Wall -g
+FLAGS = -Wall -g
 
 INC = -IGL -IGLU -lglut -L./lib -I./include -I./ -lGLEW
 
