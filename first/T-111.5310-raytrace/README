@@ -1,8 +1,0 @@
-Documentation is in doc/html.
-
-make should compile this on linux and on OSX you probably need to fiddle with 
-the makefile. 
-
-Requires sdl and sdl image libraries.
-
-
