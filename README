@@ -1,0 +1,59 @@
+The code vizualises a bunny.
+
+Compile the code with make (tested to work on machines Maari-C, some links in
+directory structure expect that).
+
+After that you start the program by giving the command
+./test bunny.ply texture.bmp texture2.bmp
+(quit by pressing the escape key)
+
+We won't submit the largest ply files as they are quite large and unnecessary.
+
+## Navigation
+You can navigate by using the mouse. Scrollweel zooms in and out (as do
+buttons a and z on the keyboard) and moving the mouse while pressing left
+button and using the arrow keys rotate the object.
+
+Keyboard buttons a and z zoom in and out and arrow keys rotates the
+view.
+
+## Completed
+* loading object: yes
+* fixing broken normals: tried but not quite :(
+* loading texture(s) from file(s): yes
+* updating viewport: yes, this also resets the camera
+* directional light using shaders: yes
+* Blinn-Phong: yes
+* modulating texturing with blinn-phong: yes
+* mapping the texture: simple coordinate projection
+* ui: yes
+
+## We haven't
+
+* left double buffering or z-buffering out
+* used OpenGL1-styled commands
+** note, we do use glScale etc to create the transform matrices that we then
+pass as uniforms
+* managed to avoid using shaders
+* used a GLSL version lower than 1.50
+* forgotten to write this README file
+
+
+## Additional features
+If you wish to see movement, press spacebar to toggle animation, an "almost
+realistic" jumping of the bunny. On the other hand if you wish to see our toon
+shaded bunny, press t on the keyboard. Pressing 2 toggles the other texture
+that takes over majority of the bunny.
+
+As you can see we have drawn the bunny. We load the ply file and attempt to
+reorient skewed normals (this isn't working as we couldn't figure out the
+appropriate algorithm). 
+
+For some reason reading BMP files in the appropriate order (not RGB) didn't
+work as specified so we are flipping the colors back to their original places
+in the shader.
+
+
+Made By:
+Jyry Suvilehto 64555P
+Kristoffer Snabb 57872V
