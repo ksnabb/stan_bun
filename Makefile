@@ -10,8 +10,8 @@ INC = -IGL -IGLU -lglut -L./lib -I./include -I./ -lGLEW
 
 all: test
 
-test: opengl_test.c util.c glew_ui.c
-	$(CC) $(FLAGS) -o test opengl_test.c util.c glew_ui.c $(INC) 
+test: main.cpp utils.cpp
+	$(CC) $(FLAGS) -o test main.cpp utils.cpp $(INC) 
 
 clean: 
 	rm -f *.o test
