@@ -6,7 +6,13 @@
 #include <GL/glut.h>
 
 class MeshObject {
-    private:
+
+    public:
+        MeshObject(const char *);
+        void lazy_calc_normal(int, int, int, float*);
+        void calc_normal(float *, float *, float *, float *);
+        void recursive_orient(int, float *, int *, int **, bool *);
+        float calc_dot_product(float*, float*);
         float * vertices;
         int amount_of_vertices;
         int * faces_indices;
@@ -14,11 +20,4 @@ class MeshObject {
         int amount_of_faces;
         float * vertex_normals;
         float * tex_coordinates;
-    
-    public:
-        MeshObject(const char *);
-        void lazy_calc_normal(int, int, int, float*);
-        void calc_normal(float *, float *, float *, float *);
-        void recursive_orient(int, float *, int *, int **, bool *);
-        float calc_dot_product(float*, float*);
 };
