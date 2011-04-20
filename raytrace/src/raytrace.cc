@@ -16,6 +16,7 @@
 #include "point_light.hh"
 #include "sphere_geometry.hh"
 #include "plane_geometry.hh"
+#include "triangle_geometry.hh"
 
 using namespace std;
 using namespace cgmath;
@@ -41,6 +42,9 @@ object*          sphere1;
 sphere_geometry* sphere2_geometry;
 lambert_shader*  sphere2_shader;
 object*          sphere2;
+triangle_geometry* triangle1_geometry;
+lambert_shader* triangle1_shader;
+object*          triangle1;
 plane_geometry*  plane1_geometry;
 lambert_shader*  plane1_shader;
 object*          plane1;
@@ -139,12 +143,21 @@ void init_scene (void)
 		      plane1_geometry,
 		      plane1_shader);
   
+  triangle1_geometry = new triangle_geometry (triangle_3d(vec(0.0, 0.0, 0.0),
+  vec(1.0, 1.0, 1.0), vec(1.0, 0.0, 1.0)));
+  triangle1_shader = new lambert_shader (vec(0.4,0.4,0.4));
+  triangle1 = new object(translate(vec(0.0, 1.0, 0.0)), 
+		      triangle1_geometry,
+		      triangle1_shader);
+  
+
   light1 = new point_light (vec(3.0, 3.0, 3.0),  vec(20.0, 20.0, 20.0));
   light2 = new point_light (vec(-3.0, 3.0, -3.0), vec( 3.0, 3.0, 10.0));
   
   tracer->objects.push_back (sphere1);
   tracer->objects.push_back (sphere2);
   tracer->objects.push_back (plane1);
+  tracer->objects.push_back (triangle1);
   tracer->lights.push_back  (light1);
   tracer->lights.push_back  (light2);
   
