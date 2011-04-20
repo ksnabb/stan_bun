@@ -144,8 +144,8 @@ void init_scene (void)
 		      plane1_shader);
   
   triangle1_geometry = new triangle_geometry (triangle_3d(vec(0.0, 0.0, 0.0),
-  vec(1.0, 1.0, 1.0), vec(1.0, 0.0, 1.0)));
-  triangle1_shader = new lambert_shader (vec(0.4,0.4,0.4));
+  vec(1.0, 1.0, -1.0), vec(-1.0, 1.0, -1.0)));
+  triangle1_shader = new lambert_shader (vec(0.5,0.2,0.2));
   triangle1 = new object(translate(vec(0.0, 1.0, 0.0)), 
 		      triangle1_geometry,
 		      triangle1_shader);

@@ -4,6 +4,7 @@
 triangle_geometry::triangle_geometry (const cgmath::triangle_3d& _triangle)
   : triangle(_triangle)
 {
+    //hit_coords = ray(0.0, 0.0, 0.0);
 }
   
 double triangle_geometry::hit (const cgmath::ray_3d& ray) const
@@ -13,6 +14,7 @@ double triangle_geometry::hit (const cgmath::ray_3d& ray) const
     if (cgmath::intersect (ray, triangle, t, a, b, c))
       {
 	hit_point = ray(t);
+    //hit_coords = vec(a, b, c);
 	return t;
       }
     else
