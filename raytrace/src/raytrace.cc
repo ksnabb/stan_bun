@@ -17,7 +17,7 @@
 #include "sphere_geometry.hh"
 #include "plane_geometry.hh"
 #include "triangle_geometry.hh"
-#include "mesh_object.hh"
+//#include "mesh_object.hh"
 
 using namespace std;
 using namespace cgmath;
@@ -46,9 +46,9 @@ object*          sphere2;
 triangle_geometry* triangle1_geometry;
 lambert_shader* triangle1_shader;
 object*          triangle1;
-mesh_geometry* mesh1_geometry;
-lambert_shader* mesh1_shader;
-object*          mesh1;
+//mesh_geometry* mesh1_geometry;
+//lambert_shader* mesh1_shader;
+//object*          mesh1;
 
 plane_geometry*  plane1_geometry;
 lambert_shader*  plane1_shader;
@@ -62,6 +62,7 @@ unsigned         scanline = 0;
 
 int main (int argc, char* argv[])
 {
+  cout << "main function called\n";
   init_window (640, 480);
   init_scene ();
   event_loop ();
@@ -71,6 +72,7 @@ int main (int argc, char* argv[])
 /// Initialize a window for single buffered OpenGL rendering.
 void init_window (unsigned width, unsigned height)
 {
+  cout << "init_window function called\n";
   // Initialize SDL and OpenGL with 8 bits for each RGBA. No double buffering.
   SDL_Init (SDL_INIT_VIDEO);
   atexit (SDL_Quit);
@@ -87,6 +89,7 @@ void init_window (unsigned width, unsigned height)
 /// Handle events. Do idle processing while there are no events.
 void event_loop (void)
 {
+  cout << "event_loop function called\n";
   SDL_Event event;
   while (not exit_event_loop)
     if (SDL_PollEvent (&event))
@@ -98,6 +101,7 @@ void event_loop (void)
 /// Handle a given event. Dispatches by type to other event handlers.
 void handle_event (SDL_Event& event)
 {
+  cout << "handle_event function called\n";
   switch (event.type) 
     {
     case SDL_KEYDOWN:         handle_keydown (event); break;
@@ -110,6 +114,7 @@ void handle_event (SDL_Event& event)
 /// Handle pressing a key on the keyboard. Set quit on Esc pressed.
 void handle_keydown (SDL_Event& event)
 {
+  cout << "handle_keydown function called\n";
   switch (event.key.keysym.sym)
     {
     case SDLK_ESCAPE: exit_event_loop = true;
@@ -118,7 +123,9 @@ void handle_keydown (SDL_Event& event)
 }
 
 void handle_keyup (SDL_Event& event)
-{}
+{
+  cout << "handle_keyup\n";
+}
 
 void handle_mouse_button_down (SDL_Event& event)
 {}
@@ -128,6 +135,8 @@ void handle_mouse_motion (SDL_Event& event)
 
 void init_scene (void)
 {
+
+  cout << "init_scene function called\n";
   tracer  = new raytracer;
 
   sphere1_geometry = new sphere_geometry (vec(0.0, 0.0, 0.0), 1.0);
@@ -154,13 +163,14 @@ void init_scene (void)
   triangle1 = new object(translate(vec(0.0, 1.0, 0.0)), 
 		      triangle1_geometry,
 		      triangle1_shader);
-  
+
+  /*
   mesh1_geometry = new mesh_geometry ("./box.ply");
   mesh1_shader = new lambert_shader (vec(0.5,0.2,0.2));
   mesh1 = new object(translate(vec(0.0, 1.0, 0.0)), 
 		      mesh1_geometry,
 		      mesh1_shader);
-  
+  */
 
   light1 = new point_light (vec(3.0, 3.0, 3.0),  vec(20.0, 20.0, 20.0));
   light2 = new point_light (vec(-3.0, 3.0, -3.0), vec( 3.0, 3.0, 10.0));
@@ -169,7 +179,7 @@ void init_scene (void)
   tracer->objects.push_back (sphere2);
   tracer->objects.push_back (plane1);
   tracer->objects.push_back (triangle1);
-  tracer->objects.push_back (mesh1);
+  //tracer->objects.push_back (mesh1);
   tracer->lights.push_back  (light1);
   tracer->lights.push_back  (light2);
   
