@@ -17,7 +17,7 @@
 #include "sphere_geometry.hh"
 #include "plane_geometry.hh"
 #include "triangle_geometry.hh"
-//#include "mesh_object.hh"
+#include "mesh_geometry.hh"
 
 using namespace std;
 using namespace cgmath;
@@ -46,7 +46,7 @@ object*          sphere2;
 triangle_geometry* triangle1_geometry;
 lambert_shader* triangle1_shader;
 object*          triangle1;
-//mesh_geometry* mesh1_geometry;
+mesh_geometry* mesh1_geometry;
 //lambert_shader* mesh1_shader;
 //object*          mesh1;
 
@@ -164,8 +164,8 @@ void init_scene (void)
 		      triangle1_geometry,
 		      triangle1_shader);
 
-  /*
   mesh1_geometry = new mesh_geometry ("./box.ply");
+  /*
   mesh1_shader = new lambert_shader (vec(0.5,0.2,0.2));
   mesh1 = new object(translate(vec(0.0, 1.0, 0.0)), 
 		      mesh1_geometry,
