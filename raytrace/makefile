@@ -1,5 +1,5 @@
 CXX=c++
-CXXFLAGS=-O2 -ansi -pedantic -Wall `sdl-config --cflags` -Iinclude
+CXXFLAGS=-O2 -ansi -pedantic -Wall `sdl-config --cflags` -Iinclude -g
 LDFLAGS=`sdl-config --libs` -lGL -lGLU
 SRC:=$(wildcard src/*.cc)
 OBJ:=$(SRC:.cc=.o)

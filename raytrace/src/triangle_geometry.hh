@@ -16,6 +16,7 @@ public:
   cgmath::triangle_3d triangle;
   mutable cgmath::vector_3d hit_point;
   mutable cgmath::vector_3d hit_coords;
+  mutable cgmath::vector_3d triangle_normal;
 };
 
 #endif
