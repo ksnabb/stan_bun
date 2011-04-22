@@ -11,7 +11,7 @@ using namespace cgmath;
 const int LINE_LENGTH=100;
 
 double mesh_geometry::hit(const cgmath::ray_3d& ray) const{
-    double current_best = 100000000.0;
+    double current_best = std::numeric_limits<double>::infinity();
     for (int i = 0; i < (int)geometries.size(); i++){
         double dist = geometries[i]->hit(ray);
         if (dist < current_best){

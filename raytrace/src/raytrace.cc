@@ -164,10 +164,10 @@ void init_scene (void)
 		      triangle1_geometry,
 		      triangle1_shader);
 
-  mesh1_geometry = new mesh_geometry ("./bun_zipper_res4.ply");
+  mesh1_geometry = new mesh_geometry ("./box.ply");
   
   mesh1_shader = new lambert_shader (vec(0.5,0.2,0.2));
-  mesh1 = new object(scale(5.0, 5.0, 5.0), 
+  mesh1 = new object(matrix_4d::identity(), 
 		      mesh1_geometry,
 		      mesh1_shader);
   
