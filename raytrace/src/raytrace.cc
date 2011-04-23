@@ -13,6 +13,7 @@
 #include <cgmath/cgmath.hh>
 #include "raytracer.hh"
 #include "lambert_shader.hh"
+#include "mirror_shader.hh"
 #include "point_light.hh"
 #include "sphere_geometry.hh"
 #include "plane_geometry.hh"
@@ -49,6 +50,8 @@ object*          triangle1;
 mesh_geometry* mesh1_geometry;
 lambert_shader* mesh1_shader;
 object*          mesh1;
+
+mirror_shader * mirror1_shader;
 
 plane_geometry*  plane1_geometry;
 lambert_shader*  plane1_shader;
@@ -138,6 +141,7 @@ void init_scene (void)
 
   cout << "init_scene function called\n";
   tracer  = new raytracer;
+  mirror1_shader = new mirror_shader();
 
   sphere1_geometry = new sphere_geometry (vec(0.0, 0.0, 0.0), 1.0);
   sphere1_shader = new lambert_shader (vec(0.6,0.6,0.05));
@@ -149,18 +153,23 @@ void init_scene (void)
   sphere2_shader   = new lambert_shader (vec(0.05, 0.6, 0.6));
   sphere2 = new object (translate(vec(1.0, 0.0, 0.0)),
 			sphere2_geometry,
-			sphere2_shader);
+//			sphere2_shader);
+            mirror1_shader);
   
   plane1_geometry = new plane_geometry (plane_3d(vec(0.0, 1.0, 0.0), 1.0));
   plane1_shader = new lambert_shader (vec(0.4,0.4,0.4));
   plane1 = new object(matrix_4d::identity(), 
 		      plane1_geometry,
 		      plane1_shader);
+//              mirror1_shader);
   
-  triangle1_geometry = new triangle_geometry (triangle_3d(vec(0.0, 0.0, 0.0),
-  vec(1.0, 1.0, -1.0), vec(-1.0, 1.0, -1.0)));
+  triangle1_geometry = new triangle_geometry (triangle_3d(
+  vec(0.0, 0.0, 0.0),
+  vec(-1.0, 1.0, 1.0),
+  vec(1.0, 1.0, 1.0)
+  ));
   triangle1_shader = new lambert_shader (vec(0.5,0.2,0.2));
-  triangle1 = new object(translate(vec(0.0, 1.0, 0.0)), 
+  triangle1 = new object(translate(vec(1.0, 1.0, 0.0)), 
 		      triangle1_geometry,
 		      triangle1_shader);
 
@@ -180,7 +189,7 @@ void init_scene (void)
   tracer->objects.push_back (sphere2);
   tracer->objects.push_back (plane1);
   tracer->objects.push_back (triangle1);
-  tracer->objects.push_back (mesh1);
+//  tracer->objects.push_back (mesh1);
   tracer->lights.push_back  (light1);
   tracer->lights.push_back  (light2);
   

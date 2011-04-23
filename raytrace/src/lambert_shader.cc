@@ -14,7 +14,7 @@ vector_3d lambert_shader::bsdf (const surface_point& point,
   cgmath::vector_3d c(0.0);
   double cos_theta = -cgmath::dot(in_dir, point.normal);
   if (cos_theta > 0)
-    c = (cos_theta / M_PI) * diffuse;
+    c = (cos_theta / M_PI) * vec(0.0, 0.0, 0.0);
   return c;
 }
   

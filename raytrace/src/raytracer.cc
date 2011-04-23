@@ -9,7 +9,7 @@ using namespace cgmath;
 
 const double UNSHADED_LIGHT = 0.1;
 const bool INDIRECT_ENABLED = true;
-const int SAMPLES_PER_PIXEL = 2;
+const int SAMPLES_PER_PIXEL = 8;
 
 static void put_pixel (SDL_Surface *surface, int x, int y, const vector_3d& color);
 
