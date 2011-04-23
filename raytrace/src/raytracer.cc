@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cassert>
+#include <stdlib.h>
 #include "raytracer.hh"
 #include "surface_point.hh"
 
@@ -7,6 +8,8 @@ using namespace std;
 using namespace cgmath;
 
 const double UNSHADED_LIGHT = 0.1;
+const bool INDIRECT_ENABLED = true;
+const int SAMPLES_PER_PIXEL = 2;
 
 static void put_pixel (SDL_Surface *surface, int x, int y, const vector_3d& color);
 
@@ -38,33 +41,45 @@ object* raytracer::hit_surface (const cgmath::ray_3d& ray,
   return obj;
 }
 
-vector_3d raytracer::trace (const ray_3d& ray)
+vector_3d raytracer::trace (const ray_3d& ray, bool fromcamera)
 {
   surface_point sp;
   if (hit_surface (ray, numeric_limits<double>::infinity(), sp))
-    return shade (normalized(-ray.d), sp);
+    return shade (normalized(-ray.d), sp, fromcamera);
   else
     return shade_exiting (ray);
 }
 
 vector_3d raytracer::shade (const vector_3d& out, 
-			    const surface_point& sp)
+			    const surface_point& sp, bool fromcamera)
 {
   vector_3d color (0.0);
   // Handle reflections from lights
 
   for (unsigned i = 0; i < lights.size(); ++i)
     {
-      double fraction = 1.0;
       light_samples samples;
       lights[i]->illuminate (sp.point, 1, samples);
       // Here you should check that the light is not
       // occluded to get shadows.
       
+      vector_3d radiance = vec(0.0, 0.0, 0.0);
+      if (fromcamera)
+          radiance += samples[0].radiance;
       if (!hit_object(ray_3d(sp.point, samples[0].direction),numeric_limits<double>::infinity()))
-          //todo: add little base color
-            color += fraction*mul(sp.bsdf(-normalized(samples[0].direction), 
-            out), samples[0].radiance);
+            color += mul(sp.bsdf(-normalized(samples[0].direction), 
+            out), radiance);
+    }
+  if (INDIRECT_ENABLED && rand() % 2){ //50% chance
+            bsdf_samples sample_vecs;
+            sp.sample_bsdf(1, out, sample_vecs);
+            //no vector * scalar operation so just add twice
+            vector_3d result = trace(ray_3d(sp.point, 
+                sample_vecs[0].direction), false);
+            result = mul(result, sample_vecs[0].weight);
+            color += result;
+            color += result;
+ 
     }
   // In addition to direct lighting, the surface should
   // get light from other surfaces.
@@ -92,7 +107,13 @@ void raytracer::trace_scanline (const matrix_4d& P,
   for (int x = 0; x < s->w; ++x)
     {
       vector_3d p1 = cartesian(iP * vec<double>(x, y, 1.0, 1.0));
-      put_pixel (s, x, y, trace (ray_3d (eye, p1 - eye)));
+      vector_3d color = vec(0.0, 0.0, 0.0);
+      for (int i = 0; i < SAMPLES_PER_PIXEL; i++)
+          color += trace(ray_3d(eye, p1-eye), true);
+      color[0] = color[0]/(double)SAMPLES_PER_PIXEL;
+      color[1] = color[1]/(double)SAMPLES_PER_PIXEL;
+      color[2] = color[2]/(double)SAMPLES_PER_PIXEL;
+      put_pixel (s, x, y, color);
     }
 }
 

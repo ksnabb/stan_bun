@@ -15,7 +15,7 @@ double mesh_geometry::hit(const cgmath::ray_3d& ray) const{
     for (int i = 0; i < (int)geometries.size(); i++){
         double dist = geometries[i]->hit(ray);
         if (dist < current_best){
-            printf("ray hit\n");
+//            printf("ray hit\n");
             current_best = dist;
             nearest = i;
             }
@@ -24,7 +24,7 @@ double mesh_geometry::hit(const cgmath::ray_3d& ray) const{
 }
 
 void mesh_geometry::hit_surface_point(surface_point& sp) const{
-    printf("getting nearest hit point\n");
+//    printf("getting nearest hit point\n");
     geometries[nearest]->hit_surface_point(sp);
     }
 

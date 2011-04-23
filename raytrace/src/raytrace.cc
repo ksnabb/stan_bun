@@ -205,6 +205,7 @@ void idle (void)
 {
   if (scanline < surf->h)
     tracer->trace_scanline (projection_matrix, surf, scanline++);
+    //12 is number of samples per pixel
   render_scene ();
 }
 

@@ -27,10 +27,11 @@ public:
   object* hit_surface (const cgmath::ray_3d& ray, double max_l, surface_point& sp);
 
   /// Trace single ray
-  cgmath::vector_3d trace (const cgmath::ray_3d& ray);
+  cgmath::vector_3d trace (const cgmath::ray_3d& ray, bool fromcamera);
   
   /// Shade surface point as seen from out direction.
-  cgmath::vector_3d shade (const cgmath::vector_3d& out, const surface_point& sp);
+  cgmath::vector_3d shade (const cgmath::vector_3d& out, 
+  const surface_point& sp, bool fromcamera);
 
   /// Shade ray that exits scene. 
   cgmath::vector_3d shade_exiting (const cgmath::ray_3d& ray);
