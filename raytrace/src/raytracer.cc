@@ -6,6 +6,8 @@
 using namespace std;
 using namespace cgmath;
 
+const double UNSHADED_LIGHT = 0.1;
+
 static void put_pixel (SDL_Surface *surface, int x, int y, const vector_3d& color);
 
 raytracer::raytracer (void)
@@ -50,14 +52,19 @@ vector_3d raytracer::shade (const vector_3d& out,
 {
   vector_3d color (0.0);
   // Handle reflections from lights
+
   for (unsigned i = 0; i < lights.size(); ++i)
     {
+      double fraction = 1.0;
       light_samples samples;
       lights[i]->illuminate (sp.point, 1, samples);
       // Here you should check that the light is not
       // occluded to get shadows.
-      color += mul(sp.bsdf(-normalized(samples[0].direction), out), 
-		   samples[0].radiance);
+      
+      if (!hit_object(ray_3d(sp.point, samples[0].direction),numeric_limits<double>::infinity()))
+          //todo: add little base color
+            color += fraction*mul(sp.bsdf(-normalized(samples[0].direction), 
+            out), samples[0].radiance);
     }
   // In addition to direct lighting, the surface should
   // get light from other surfaces.

@@ -32,8 +32,8 @@ double triangle_geometry::hit (const cgmath::ray_3d& ray) const
 void triangle_geometry::hit_surface_point (surface_point& pt) const 
 { 
   pt.point  = hit_point;
-  //pt.normal = triangle_normal;
-  pt.normal = normal(triangle);
+  pt.normal = triangle_normal;
+//  pt.normal = normal(triangle);
   pt.u = 0.0;
   pt.v = 0.0;
   printf("triangle hit at(%f, %f, %f)\n"
