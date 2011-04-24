@@ -4,7 +4,7 @@
 
 using namespace cgmath;
 
-const bool QUASIRANDOM = false;
+const bool QUASIRANDOM = true;
 
 typedef unsigned int uint;
 uint i = 0;

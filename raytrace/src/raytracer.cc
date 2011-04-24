@@ -9,7 +9,7 @@ using namespace cgmath;
 
 const double UNSHADED_LIGHT = 0.1;
 const bool INDIRECT_ENABLED = true;
-const int SAMPLES_PER_PIXEL = 8;
+const int SAMPLES_PER_PIXEL = 16;
 
 static void put_pixel (SDL_Surface *surface, int x, int y, const vector_3d& color);
 
@@ -79,7 +79,8 @@ vector_3d raytracer::shade (const vector_3d& out,
             result = mul(result, sample_vecs[0].weight);
             color += result;
             color += result;
- 
+  //          normalize(color);
+//todo: move this above last if. just testing  
     }
   // In addition to direct lighting, the surface should
   // get light from other surfaces.
@@ -89,7 +90,7 @@ vector_3d raytracer::shade (const vector_3d& out,
 vector_3d raytracer::shade_exiting (const cgmath::ray_3d& ray)
 {
   // Color of ray that exits the scene.
-  return vec(0.05, 0.05, 0.05);
+  return vec(0.1, 0.1, 0.1);
 }
 
 void raytracer::trace_image (const matrix_4d& P, SDL_Surface* s)

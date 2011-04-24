@@ -157,7 +157,7 @@ void init_scene (void)
             mirror1_shader);
   
   plane1_geometry = new plane_geometry (plane_3d(vec(0.0, 1.0, 0.0), 1.0));
-  plane1_shader = new lambert_shader (vec(0.4,0.4,0.4));
+  plane1_shader = new lambert_shader (vec(0.04,0.4,0.4));
   plane1 = new object(matrix_4d::identity(), 
 		      plane1_geometry,
 		      plane1_shader);
@@ -177,7 +177,7 @@ void init_scene (void)
   //mesh1_geometry = new mesh_geometry ("./bun_zipper_res4.ply");
   
   mesh1_shader = new lambert_shader (vec(0.5,0.2,0.2));
-  mesh1 = new object(translate(vec(1.0, 1.1, 0.0)), 
+  mesh1 = new object(translate(vec(1.0, 1.1, 1.0)), 
 		      mesh1_geometry,
 		      mesh1_shader);
   
