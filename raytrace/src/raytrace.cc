@@ -173,11 +173,11 @@ void init_scene (void)
 		      triangle1_geometry,
 		      triangle1_shader);
 
-  //mesh1_geometry = new mesh_geometry ("./box.ply");
-  mesh1_geometry = new mesh_geometry ("./bun_zipper_res4.ply");
+  mesh1_geometry = new mesh_geometry ("./box.ply");
+  //mesh1_geometry = new mesh_geometry ("./bun_zipper_res4.ply");
   
   mesh1_shader = new lambert_shader (vec(0.5,0.2,0.2));
-  mesh1 = new object(scale(8, 8, 8), 
+  mesh1 = new object(translate(vec(1.0, 1.1, 0.0)), 
 		      mesh1_geometry,
 		      mesh1_shader);
   
@@ -188,8 +188,8 @@ void init_scene (void)
   tracer->objects.push_back (sphere1);
   tracer->objects.push_back (sphere2);
   tracer->objects.push_back (plane1);
-  tracer->objects.push_back (triangle1);
-//  tracer->objects.push_back (mesh1);
+//  tracer->objects.push_back (triangle1);
+  tracer->objects.push_back (mesh1);
   tracer->lights.push_back  (light1);
   tracer->lights.push_back  (light2);
   
