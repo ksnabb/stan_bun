@@ -4,7 +4,6 @@
 #include <cassert>
 
 
-
 using namespace std;
 using namespace cgmath;
 
@@ -29,7 +28,8 @@ void mesh_geometry::hit_surface_point(surface_point& sp) const{
     }
 
 mesh_geometry::mesh_geometry(const char * file_name) {
-        //BEGIN PLY FILE HANDLING
+
+    //BEGIN PLY FILE HANDLING
     FILE *ply;
 
     char line[LINE_LENGTH]; //line to be read
@@ -122,7 +122,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     
     
     for(i = 0; i < amount_of_faces; i++) {
-        int foo = fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
+        int foo = fscanf (ply, "%i %i %i %i \n", &amount_of_face_indices, &a, &b, &c);
         foo = foo;
         if (amount_of_face_indices == 3) //we're only interested in triangels
         {
@@ -240,6 +240,9 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     free(visited);
     //END PLY FILE HANDLING
     
+    cout << "amount of faces: ";
+    cout << amount_of_faces;
+    cout << "\n";
 
     //BEGIN triangle generation
 
@@ -260,6 +263,11 @@ mesh_geometry::mesh_geometry(const char * file_name) {
         vertices[one+2]);
     }
     nearest = 0;
+
+    cout << "build BVH tree \n";
+
+    //tree = new BVHtree(geometries);
+
     cout << "done creating mesh object\n";
 }
 
