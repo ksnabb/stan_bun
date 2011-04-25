@@ -7,11 +7,14 @@
 #include <cgmath/cgmath.hh>
 #include "geometry.hh"
 #include <vector>
+#include "BVHtree.hh"
 
 class mesh_geometry : public geometry {
-
+    //make this a node in the tree
+    
     public:
         mesh_geometry(const char *);
+        mesh_geometry(std::vector<geometry*>); //create a mesh_geometry of other geometries
         virtual double hit (const cgmath::ray_3d& r) const;
         virtual void hit_surface_point(surface_point& sp) const;
         
@@ -32,5 +35,9 @@ class mesh_geometry : public geometry {
         int amount_of_faces;
         float * vertex_normals;
         float * tex_coordinates;
+        
+        BVHtree * tree;
+        cgmath::box_3d bbox; //bounding box
+
 };
 #endif
