@@ -148,7 +148,8 @@ void init_scene (void)
   tracer  = new raytracer;
 
   mirror1_shader = new mirror_shader();
-  glass1_shader = new glass_shader(1.5);
+  glass1_shader = new glass_shader(1.1);
+
 
   sphere1_geometry = new sphere_geometry (vec(0.0, 0.0, 0.0), 1.0);
   sphere1_shader = new lambert_shader (vec(0.6,0.6,0.05));
@@ -160,17 +161,17 @@ void init_scene (void)
   sphere2_shader   = new lambert_shader (vec(0.05, 0.6, 0.6));
   sphere2 = new object (translate(vec(1.0, 0.0, 0.0)),
 			sphere2_geometry,
-//			sphere2_shader);
-            mirror1_shader);
+			sphere2_shader);
+//            mirror1_shader);
   
-  sphere3_geometry = new sphere_geometry(vec(0.0, 0.0, 0.0), 0.5);
-  sphere3 = new object (translate(vec(-1.0, -0.5, 2.0)),
+  sphere3_geometry = new sphere_geometry(vec(0.0, 0.0, 0.0), 1.0);
+  sphere3 = new object (translate(vec(0.0, 0.0, 2.0)),
 			sphere3_geometry,
 //			sphere2_shader);
             glass1_shader);
   
   plane1_geometry = new plane_geometry (plane_3d(vec(0.0, 1.0, 0.0), 1.0));
-  plane1_shader = new lambert_shader (vec(0.04,0.4,0.4));
+  plane1_shader = new lambert_shader (vec(0.4,0.04,0.4));
   plane1 = new object(matrix_4d::identity(), 
 		      plane1_geometry,
 		      plane1_shader);
@@ -193,7 +194,7 @@ void init_scene (void)
   mesh1 = new object(translate(vec(1.0, 1.1, 1.0)), 
 		      mesh1_geometry,
 		      mesh1_shader);
-  mesh2 = new object(translate(vec(1.0, 2.0, -2.0)),
+  mesh2 = new object(translate(vec(0.5, 2.0, 2.0)),
               mesh1_geometry,
               mesh1_shader);
 

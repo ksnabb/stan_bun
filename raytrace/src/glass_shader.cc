@@ -23,22 +23,29 @@ void glass_shader::sample_bsdf (const surface_point& point,
 {
   samples.resize (num_samples);
   double r_i = refractive_index;
+  vector_3d od = -out_dir;
+  vector_3d pn = point.normal;
   //formula straight from wikipedia http://en.wikipedia.org/wiki/Snell%27s_law
-  double cos_1 = dot(point.normal, out_dir);
-//  if (cos_1 < 0) //we are inside object, invert refraction
-//      r_i = 1/r_i;
-  double cos_2 = 1 - (r_i*r_i)*(1-(cos_1*cos_1));
-  if (cos_2 >0)
-      cos_2 = sqrt(cos_2);
-  vector_3d v_reflect = out_dir + (2*cos_1)*point.normal;
+  double cos_1 = dot(-od, pn);
+  if (cos_1 >= 0) //we are inside object, invert refraction
+      r_i = 1/r_i;
+  double cos_2_part = 1 - (r_i*r_i)*(1-(cos_1*cos_1));
+//  if (cos_2_part < 0)
+//      cos_2_part = 0;
+  double cos_2;
+  cos_2 = sqrt(cos_2_part);
+  vector_3d v_reflect = od + (2*cos_1)*pn;
   vector_3d v_refract;
-  if (cos_1 > 0)
-    v_refract = r_i*out_dir +
-    ((r_i*cos_1-cos_2)*point.normal);
+  if (cos_1 >=0)
+  v_refract = (r_i*od)+
+    ((r_i*cos_1-cos_2)*pn);
   else
-    v_refract = r_i*out_dir +
-    ((refractive_index*cos_1+cos_2)*point.normal);
-      
+  v_refract = (r_i*od) +
+    ((r_i*cos_1+cos_2)*pn);
+  
   for (unsigned i = 0; i < samples.size(); ++i)
-    samples[i] = bsdf_sample (v_refract, vec(1.0, 1.0, 1.0));
+      if (cos_2_part >= 0 )
+        samples[i] = bsdf_sample (v_refract, vec(1.0, 1.0, 1.0));
+        else 
+        samples[i] = bsdf_sample (v_reflect, vec(1.0, 1.0, 1.0));
 }
