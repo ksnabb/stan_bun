@@ -57,11 +57,9 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     }
 
 
-    #ifdef DEBUG
     printf("file format says %i vertices, %i faces\n", 
         amount_of_vertices,
         amount_of_faces);
-    #endif
   
     //read vertices
     int i;
@@ -262,8 +260,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
         vertices[one+2]);
     }
     nearest = 0;
-
-
+    cout << "done creating mesh object\n";
 }
 
 void mesh_geometry::calc_normal(float * first, float * second, float * third, float * returnme)
