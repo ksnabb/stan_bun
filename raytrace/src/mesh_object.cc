@@ -39,7 +39,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     ply = fopen (file_name, "rt"); //open ply file
 
     printf("Starting to read mesh object\n");
-    printf("opening file named %s with handle %d\n", file_name, ply);
+    printf("opening file named %s with handle \n", file_name);
     //read header
     while (fgets(line, LINE_LENGTH, ply) != NULL)
     {
@@ -236,9 +236,9 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     }
 
     fclose(ply); //close file
-
+    free(vertex_in_faces);
+    free(visited);
     //END PLY FILE HANDLING
-
     
 
     //BEGIN triangle generation

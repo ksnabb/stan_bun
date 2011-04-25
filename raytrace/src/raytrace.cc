@@ -195,8 +195,8 @@ void init_scene (void)
   tracer->lights.push_back  (light2);
   
   cout << "create SDL surface\n";
-  
-  surf = SDL_CreateRGBSurface (SDL_SWSURFACE, //this one blocking execution ??
+  //this one blocking execution ??
+  surf = SDL_CreateRGBSurface (SDL_SWSURFACE, 
 			       640, 480, 32,
 			       0x000000ff,
 			       0x0000ff00,
@@ -233,7 +233,6 @@ void update_scene (void)
 /// Shows the raytraced image using OpenGL.
 void render_scene     (void)
 {
-  cout << "render scene called\n";
   glClear (GL_COLOR_BUFFER_BIT);
   // This is a bit crappy way to do this. 
   glMatrixMode (GL_PROJECTION);
