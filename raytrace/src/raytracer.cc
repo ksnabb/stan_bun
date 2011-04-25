@@ -70,7 +70,8 @@ vector_3d raytracer::shade (const vector_3d& out,
             color += mul(sp.bsdf(-normalized(samples[0].direction), 
             out), radiance);
     }
-  if (INDIRECT_ENABLED && rand() % 2){ //50% chance
+  if (INDIRECT_ENABLED){
+      if (fromcamera || rand()%2){//50% chance
             bsdf_samples sample_vecs;
             sp.sample_bsdf(1, out, sample_vecs);
             //no vector * scalar operation so just add twice
@@ -78,9 +79,9 @@ vector_3d raytracer::shade (const vector_3d& out,
                 sample_vecs[0].direction), false);
             result = mul(result, sample_vecs[0].weight);
             color += result;
-            color += result;
-  //          normalize(color);
-//todo: move this above last if. just testing  
+            if (!fromcamera)
+                color += result;
+      }
     }
   // In addition to direct lighting, the surface should
   // get light from other surfaces.

@@ -50,6 +50,7 @@ object*          triangle1;
 mesh_geometry* mesh1_geometry;
 lambert_shader* mesh1_shader;
 object*          mesh1;
+object*         mesh2;
 
 mirror_shader * mirror1_shader;
 
@@ -181,7 +182,10 @@ void init_scene (void)
   mesh1 = new object(translate(vec(1.0, 1.1, 1.0)), 
 		      mesh1_geometry,
 		      mesh1_shader);
-  
+  mesh2 = new object(translate(vec(2.0, 0.0, 4.0)),
+              mesh1_geometry,
+              mesh1_shader);
+
   light1 = new point_light (vec(3.0, 3.0, 3.0), vec(20.0, 20.0, 20.0));
   light2 = new point_light (vec(-3.0, 3.0, -3.0), vec( 3.0, 3.0, 10.0));
   
@@ -191,6 +195,7 @@ void init_scene (void)
   tracer->objects.push_back (plane1);
 //  tracer->objects.push_back (triangle1);
   tracer->objects.push_back (mesh1);
+  tracer->objects.push_back (mesh2);
   tracer->lights.push_back  (light1);
   tracer->lights.push_back  (light2);
   
