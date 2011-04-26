@@ -262,8 +262,12 @@ void init_scene (void)
 
     mesh1_geometry = new mesh_geometry (FNAME);
 
+    matrix_4d obj_trans = translate(vec(1.0, 1.1, 1.0));
+    if (strncmp(FNAME, "./bun", 4) == 0)
+        obj_trans = obj_trans * scale(6.0, 6.0, 6.0);
+
     mesh1_shader = new lambert_shader (vec(0.5,0.2,0.2));
-    mesh1 = new object(translate(vec(1.0, 1.1, 1.0)), 
+    mesh1 = new object(obj_trans, 
             mesh1_geometry,
             mesh1_shader);
     mesh2 = new object(translate(vec(0.5, 2.0, 2.0)),

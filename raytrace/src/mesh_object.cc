@@ -45,7 +45,7 @@ void mesh_geometry::hit_surface_point(surface_point& sp) const{
     }
 
 mesh_geometry::mesh_geometry(std::vector<triangle_geometry*> geoms) {
-    cout << "mesh_geometry constructor called\n";
+//    cout << "mesh_geometry constructor called\n";
 
     int amount_of_geometries = (int)geoms.size();
 
@@ -188,10 +188,10 @@ mesh_geometry::mesh_geometry(const char * file_name) {
             faces_indices[(3*i)+1] = b;      
             faces_indices[(3*i)+2] = c;
             
-            vertex_in_faces[a][amount_of_faces_per_vertex[a]-1] = i; 
+   /*         vertex_in_faces[a][amount_of_faces_per_vertex[a]-1] = i; 
             vertex_in_faces[b][amount_of_faces_per_vertex[b]-1] = i; 
             vertex_in_faces[c][amount_of_faces_per_vertex[c]-1] = i; 
-
+*/
             amount_of_faces_per_vertex[a]++;
             amount_of_faces_per_vertex[b]++;
             amount_of_faces_per_vertex[c]++;
@@ -203,12 +203,12 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     }
     
    //just choose the face index where to start recursive calculation
-   float reference[3];
+/*   float reference[3];
    lazy_calc_normal(faces_indices[3*vertex_in_faces[0][0]],
                     faces_indices[3*vertex_in_faces[0][0]+1], 
                     faces_indices[3*vertex_in_faces[0][0]+2],
                     reference); 
-
+*/
     //count the face normals
     for(i = 0; i < amount_of_faces; i++) {
             a = faces_indices[3*i];      
@@ -241,12 +241,12 @@ mesh_geometry::mesh_geometry(const char * file_name) {
         
     //choose a reference face (index of the reference face)
     int reference_face_index = 0;
-    recursive_orient(reference_face_index, 
+/*    recursive_orient(reference_face_index, 
                     faces_normals,
                     faces_indices,
                     vertex_in_faces, 
                     visited);
-    
+*/    
     //add the faces normals to the vertex normals
     for(i = 0; i < amount_of_faces; i++) {
             a = faces_indices[3*i];      
