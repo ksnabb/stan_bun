@@ -14,24 +14,34 @@ double mesh_geometry::hit(const cgmath::ray_3d& ray) const{
     double current_best = std::numeric_limits<double>::infinity();
 
     //check if ray intersect bounding sphere
-    if(cgmath::intersect(ray, bsphere)) {
+    if(accel) {
+        if(cgmath::intersect(ray, bsphere)) {
     
-        if(geometries.size() == 0) {        
-            double child1best = child1->hit(ray);
-            double child2best = child2->hit(ray);
-            if(child1best < child2best) {
-                current_best = child1best;
+            if(geometries.size() == 0) {        
+                double child1best = child1->hit(ray);
+                double child2best = child2->hit(ray);
+                if(child1best < child2best) {
+                    current_best = child1best;
+                } else {
+                    current_best = child2best;
+                }
             } else {
-                current_best = child2best;
+    
+                for (int i = 0; i < (int)geometries.size(); i++){
+                    double dist = geometries[i]->hit(ray);
+                    if (dist < current_best){
+                        current_best = dist;
+                        nearest = i;
+                        }
+                }
             }
-        } else {
-
-            for (int i = 0; i < (int)geometries.size(); i++){
-                double dist = geometries[i]->hit(ray);
-                if (dist < current_best){
-                    current_best = dist;
-                    nearest = i;
-                    }
+        }
+    } else {
+        for (int i = 0; i < (int)geometries.size(); i++){
+            double dist = geometries[i]->hit(ray);
+            if (dist < current_best){
+                current_best = dist;
+                nearest = i;
             }
         }
     }
@@ -84,10 +94,11 @@ mesh_geometry::mesh_geometry(std::vector<triangle_geometry*> geoms) {
     }
 }
 
-mesh_geometry::mesh_geometry(const char * file_name) {
+mesh_geometry::mesh_geometry(const char * file_name, bool ACCELERATE) {
 
     //BEGIN PLY FILE HANDLING
     FILE *ply;
+    accel = ACCELERATE;
 
     char line[LINE_LENGTH]; //line to be read
     amount_of_vertices = 0;
@@ -308,15 +319,19 @@ mesh_geometry::mesh_geometry(const char * file_name) {
         int one = 3*faces_indices[3*i];    
         int two = 3*faces_indices[3*i+1];    
         int three = 3*faces_indices[3*i+2];
-        if(i == 0) {
-            bsphere = sphere_3d(vec(vertices[one], vertices[one+1], vertices[one+2]), 0);
-            bsphere.grow(vec(vertices[two], vertices[two+1], vertices[two+2]));  
-            bsphere.grow(vec(vertices[three], vertices[three+1], vertices[three+2]));       
-        } else {
-            bsphere.grow(vec(vertices[one], vertices[one+1], vertices[one+2]));
-            bsphere.grow(vec(vertices[two], vertices[two+1], vertices[two+2]));
-            bsphere.grow(vec(vertices[three], vertices[three+1], vertices[three+2]));        
-        }    
+
+        if(accel) {
+            if(i == 0) {
+                bsphere = sphere_3d(vec(vertices[one], vertices[one+1], vertices[one+2]), 0);
+                bsphere.grow(vec(vertices[two], vertices[two+1], vertices[two+2]));  
+                bsphere.grow(vec(vertices[three], vertices[three+1], vertices[three+2]));       
+            } else {
+                bsphere.grow(vec(vertices[one], vertices[one+1], vertices[one+2]));
+                bsphere.grow(vec(vertices[two], vertices[two+1], vertices[two+2]));
+                bsphere.grow(vec(vertices[three], vertices[three+1], vertices[three+2]));        
+            }
+        }
+    
         triangle_geometry * foo = new triangle_geometry(triangle_3d(
             vec(vertices[one], vertices[one+1], vertices[one+2]),
             vec(vertices[two], vertices[two+1], vertices[two+2]),
@@ -334,28 +349,30 @@ mesh_geometry::mesh_geometry(const char * file_name) {
 
     cout << "build BVH tree \n";
 
-    int amount_of_geometries = (int)geometries.size();
+    if(accel) {
+        int amount_of_geometries = (int)geometries.size();
 
 
-    if(amount_of_geometries == 1) {
-        //cannot get insert to work
-        for(int i = 0; i < amount_of_geometries; i++) {
-            geometries.push_back(geometries[i]);
-        }
-    } else {
-        //divide and count the children
-        int half = floor(amount_of_geometries / 2);
-        std::vector<triangle_geometry*> first_half;
-        std::vector<triangle_geometry*> second_half;
+        if(amount_of_geometries == 1) {
+            //cannot get insert to work
+            for(int i = 0; i < amount_of_geometries; i++) {
+                geometries.push_back(geometries[i]);
+            }
+        } else {
+            //divide and count the children
+            int half = floor(amount_of_geometries / 2);
+            std::vector<triangle_geometry*> first_half;
+            std::vector<triangle_geometry*> second_half;
         
-        for (int i = 0; i < half; i++) {
-            first_half.push_back(geometries[i]);
+            for (int i = 0; i < half; i++) {
+                first_half.push_back(geometries[i]);
+            }
+            for (int i = half; i < geometries.size(); i++) {
+                second_half.push_back(geometries[i]);
+            }
+            child1 = new mesh_geometry(first_half);
+            child2 = new mesh_geometry(second_half);
         }
-        for (int i = half; i < geometries.size(); i++) {
-            second_half.push_back(geometries[i]);
-        }
-        child1 = new mesh_geometry(first_half);
-        child2 = new mesh_geometry(second_half);
     }
 
     cout << "done creating mesh object\n";

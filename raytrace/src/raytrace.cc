@@ -260,7 +260,7 @@ void init_scene (void)
             triangle1_geometry,
             triangle1_shader);
 
-    mesh1_geometry = new mesh_geometry (FNAME);
+    mesh1_geometry = new mesh_geometry (FNAME, ACCELERATED);
 
     matrix_4d obj_trans = translate(vec(1.0, 1.1, 1.0));
     if (strncmp(FNAME, "./bun", 4) == 0)
