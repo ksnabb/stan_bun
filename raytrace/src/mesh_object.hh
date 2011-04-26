@@ -19,7 +19,7 @@ class mesh_geometry : public geometry {
         virtual void hit_surface_point(surface_point& sp) const;
         
         /*triangles in mesh object*/
-        std::vector<geometry*> geometries;
+        std::vector<triangle_geometry*> geometries;
         mutable int nearest;
 
 /*      These should be private  */
