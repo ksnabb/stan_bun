@@ -1,7 +1,8 @@
-#include "mesh_object.hh"
+#include "slow_mesh_object.hh"
 #include "triangle_geometry.hh"
 #include <iostream>
 #include <cassert>
+
 
 
 using namespace std;
@@ -9,84 +10,26 @@ using namespace cgmath;
 
 const int LINE_LENGTH=100;
 
-double mesh_geometry::hit(const cgmath::ray_3d& ray) const{
-
+double slow_mesh_geometry::hit(const cgmath::ray_3d& ray) const{
     double current_best = std::numeric_limits<double>::infinity();
-
-    //check if ray intersect bounding sphere
-    if(cgmath::intersect(ray, bsphere)) {
-    
-        if(geometries.size() == 0) {        
-            double child1best = child1->hit(ray);
-            double child2best = child2->hit(ray);
-            if(child1best < child2best) {
-                current_best = child1best;
-            } else {
-                current_best = child2best;
+    for (int i = 0; i < (int)geometries.size(); i++){
+        double dist = geometries[i]->hit(ray);
+        if (dist < current_best){
+// printf("ray hit\n");
+            current_best = dist;
+            nearest = i;
             }
-        } else {
-
-            for (int i = 0; i < (int)geometries.size(); i++){
-                double dist = geometries[i]->hit(ray);
-                if (dist < current_best){
-                    current_best = dist;
-                    nearest = i;
-                    }
-            }
-        }
     }
-
     return current_best;
 }
 
-void mesh_geometry::hit_surface_point(surface_point& sp) const{
-//    printf("getting nearest hit point\n");
+void slow_mesh_geometry::hit_surface_point(surface_point& sp) const{
+// printf("getting nearest hit point\n");
     geometries[nearest]->hit_surface_point(sp);
     }
 
-mesh_geometry::mesh_geometry(std::vector<triangle_geometry*> geoms) {
-//    cout << "mesh_geometry constructor called\n";
-
-    int amount_of_geometries = (int)geoms.size();
-
-    for (int i = 0; i < amount_of_geometries; i++) {
-        
-        if(i == 0) {
-            bsphere = sphere_3d(geoms[i]->triangle.a, 0);
-            bsphere.grow(geoms[i]->triangle.b);  
-            bsphere.grow(geoms[i]->triangle.c);       
-        } else {
-            bsphere.grow(geoms[i]->triangle.a);
-            bsphere.grow(geoms[i]->triangle.b);
-            bsphere.grow(geoms[i]->triangle.c);        
-        }
-    }
-
-    if(amount_of_geometries == 1) {
-        //cannot get insert to work
-        for(int i = 0; i < amount_of_geometries; i++) {
-            geometries.push_back(geoms[i]);
-        }
-    } else {
-        //divide and count the children
-        int half = floor(amount_of_geometries / 2);
-        std::vector<triangle_geometry*> first_half;
-        std::vector<triangle_geometry*> second_half;
-        
-        for (int i = 0; i < half; i++) {
-            first_half.push_back(geoms[i]);
-        }
-        for (int i = half; i < geoms.size(); i++) {
-            second_half.push_back(geoms[i]);
-        }
-        child1 = new mesh_geometry(first_half);
-        child2 = new mesh_geometry(second_half);
-    }
-}
-
-mesh_geometry::mesh_geometry(const char * file_name) {
-
-    //BEGIN PLY FILE HANDLING
+slow_mesh_geometry::slow_mesh_geometry(const char * file_name) {
+        //BEGIN PLY FILE HANDLING
     FILE *ply;
 
     char line[LINE_LENGTH]; //line to be read
@@ -95,7 +38,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
 
     ply = fopen (file_name, "rt"); //open ply file
 
-    printf("Starting to read mesh object\n");
+    printf("Starting to read slow_mesh object\n");
     printf("opening file named %s with handle \n", file_name);
     //read header
     while (fgets(line, LINE_LENGTH, ply) != NULL)
@@ -114,7 +57,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     }
 
 
-    printf("file format says %i vertices, %i faces\n", 
+    printf("file format says %i vertices, %i faces\n",
         amount_of_vertices,
         amount_of_faces);
   
@@ -127,7 +70,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     //create vertex table for pushing into GLSL
     vertices = (float *) malloc(amount_of_vertices * 3 * sizeof(float));
     tex_coordinates = (float *) malloc(amount_of_vertices * 2 *
-    sizeof(float)); //only u and v for texture 
+    sizeof(float)); //only u and v for texture
     
     //set the vertex coordinates into vertices
     for(i = 0; i < amount_of_vertices; i++) {
@@ -179,18 +122,18 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     
     
     for(i = 0; i < amount_of_faces; i++) {
-        int foo = fscanf (ply, "%i %i %i %i \n", &amount_of_face_indices, &a, &b, &c);
+        int foo = fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
         foo = foo;
         if (amount_of_face_indices == 3) //we're only interested in triangels
         {
             //save the index of each vertex
-            faces_indices[3*i] = a;      
-            faces_indices[(3*i)+1] = b;      
+            faces_indices[3*i] = a;
+            faces_indices[(3*i)+1] = b;
             faces_indices[(3*i)+2] = c;
-            
-   /*         vertex_in_faces[a][amount_of_faces_per_vertex[a]-1] = i; 
-            vertex_in_faces[b][amount_of_faces_per_vertex[b]-1] = i; 
-            vertex_in_faces[c][amount_of_faces_per_vertex[c]-1] = i; 
+    /*        
+            vertex_in_faces[a][amount_of_faces_per_vertex[a]-1] = i;
+            vertex_in_faces[b][amount_of_faces_per_vertex[b]-1] = i;
+            vertex_in_faces[c][amount_of_faces_per_vertex[c]-1] = i;
 */
             amount_of_faces_per_vertex[a]++;
             amount_of_faces_per_vertex[b]++;
@@ -198,31 +141,31 @@ mesh_geometry::mesh_geometry(const char * file_name) {
 
         }
          else {
-            fprintf(stderr, "error, bad index data: not triangle!");    
+            fprintf(stderr, "error, bad index data: not triangle!");
         }
     }
     
    //just choose the face index where to start recursive calculation
-/*   float reference[3];
+  /* float reference[3];
    lazy_calc_normal(faces_indices[3*vertex_in_faces[0][0]],
-                    faces_indices[3*vertex_in_faces[0][0]+1], 
+                    faces_indices[3*vertex_in_faces[0][0]+1],
                     faces_indices[3*vertex_in_faces[0][0]+2],
-                    reference); 
+                    reference);
 */
     //count the face normals
     for(i = 0; i < amount_of_faces; i++) {
-            a = faces_indices[3*i];      
-            b = faces_indices[(3*i)+1];      
+            a = faces_indices[3*i];
+            b = faces_indices[(3*i)+1];
             c = faces_indices[(3*i)+2];
             //point vectors to the vertices for the triangle
-            float v1[3] = {vertices[(a * 3)], 
-                            vertices[(a * 3) + 1], 
+            float v1[3] = {vertices[(a * 3)],
+                            vertices[(a * 3) + 1],
                             vertices[(a * 3) + 2]};
-            float v2[3] = {vertices[(b * 3)], 
-                            vertices[(b * 3) + 1], 
+            float v2[3] = {vertices[(b * 3)],
+                            vertices[(b * 3) + 1],
                             vertices[(b * 3) + 2]};
-            float v3[3] = {vertices[(c * 3)], 
-                            vertices[(c * 3) + 1], 
+            float v3[3] = {vertices[(c * 3)],
+                            vertices[(c * 3) + 1],
                             vertices[(c * 3) + 2]};
 
             //calculate the face normal
@@ -241,16 +184,16 @@ mesh_geometry::mesh_geometry(const char * file_name) {
         
     //choose a reference face (index of the reference face)
     int reference_face_index = 0;
-/*    recursive_orient(reference_face_index, 
+    recursive_orient(reference_face_index,
                     faces_normals,
                     faces_indices,
-                    vertex_in_faces, 
+                    vertex_in_faces,
                     visited);
-*/    
+    
     //add the faces normals to the vertex normals
     for(i = 0; i < amount_of_faces; i++) {
-            a = faces_indices[3*i];      
-            b = faces_indices[(3*i)+1];      
+            a = faces_indices[3*i];
+            b = faces_indices[(3*i)+1];
             c = faces_indices[(3*i)+2];
             
             
@@ -279,7 +222,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
         float temp[3];
         temp[0] = vertex_normals[(i * 3)];
         temp[1] = vertex_normals[(i * 3) + 1];
-        temp[2] = vertex_normals[(i * 3) + 2]; 
+        temp[2] = vertex_normals[(i * 3) + 2];
         
         float normalization = sqrt(temp[0] * temp[0] + temp[1] * temp[1] + temp[2] * temp[2]);
         temp[0] = temp[0]/normalization;
@@ -295,73 +238,32 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     fclose(ply); //close file
     free(vertex_in_faces);
     free(visited);
-    free(amount_of_faces_per_vertex);
     //END PLY FILE HANDLING
     
-    cout << "amount of faces: ";
-    cout << amount_of_faces;
-    cout << "\n";
 
     //BEGIN triangle generation
 
     for (i = 0; i < amount_of_faces; i++){
-        int one = 3*faces_indices[3*i];    
-        int two = 3*faces_indices[3*i+1];    
+        int one = 3*faces_indices[3*i];
+        int two = 3*faces_indices[3*i+1];
         int three = 3*faces_indices[3*i+2];
-        if(i == 0) {
-            bsphere = sphere_3d(vec(vertices[one], vertices[one+1], vertices[one+2]), 0);
-            bsphere.grow(vec(vertices[two], vertices[two+1], vertices[two+2]));  
-            bsphere.grow(vec(vertices[three], vertices[three+1], vertices[three+2]));       
-        } else {
-            bsphere.grow(vec(vertices[one], vertices[one+1], vertices[one+2]));
-            bsphere.grow(vec(vertices[two], vertices[two+1], vertices[two+2]));
-            bsphere.grow(vec(vertices[three], vertices[three+1], vertices[three+2]));        
-        }    
         triangle_geometry * foo = new triangle_geometry(triangle_3d(
             vec(vertices[one], vertices[one+1], vertices[one+2]),
             vec(vertices[two], vertices[two+1], vertices[two+2]),
             vec(vertices[three], vertices[three+1], vertices[three+2])
             ));
-
         foo->triangle_normal = vec(faces_normals[i*3], faces_normals[(i*3)+1],
         faces_normals[(i*3)+2]);
         geometries.push_back(foo);
-//        printf("adding triangle %d, %d, %d to mesh_object\n", one, two, three);
+//        printf("adding triangle %d, %d, %d to slow_mesh_object\n", one, two, three);
 //        printf("\t (%f, %f, %f)\n", vertices[one], vertices[one+1],
 //        vertices[one+2]);
     }
     nearest = 0;
-
-    cout << "build BVH tree \n";
-
-    int amount_of_geometries = (int)geometries.size();
-
-
-    if(amount_of_geometries == 1) {
-        //cannot get insert to work
-        for(int i = 0; i < amount_of_geometries; i++) {
-            geometries.push_back(geometries[i]);
-        }
-    } else {
-        //divide and count the children
-        int half = floor(amount_of_geometries / 2);
-        std::vector<triangle_geometry*> first_half;
-        std::vector<triangle_geometry*> second_half;
-        
-        for (int i = 0; i < half; i++) {
-            first_half.push_back(geometries[i]);
-        }
-        for (int i = half; i < geometries.size(); i++) {
-            second_half.push_back(geometries[i]);
-        }
-        child1 = new mesh_geometry(first_half);
-        child2 = new mesh_geometry(second_half);
-    }
-
-    cout << "done creating mesh object\n";
+    cout << "done creating slow_mesh object\n";
 }
 
-void mesh_geometry::calc_normal(float * first, float * second, float * third, float * returnme)
+void slow_mesh_geometry::calc_normal(float * first, float * second, float * third, float * returnme)
 {
 
     
@@ -395,31 +297,31 @@ void mesh_geometry::calc_normal(float * first, float * second, float * third, fl
 }
 
 
-void mesh_geometry::lazy_calc_normal(int a, int b, int c, float*ret){
+void slow_mesh_geometry::lazy_calc_normal(int a, int b, int c, float*ret){
              //point vectors to the vertices for the triangle
-            float v1[3] = {vertices[(a * 3)], 
-                            vertices[(a * 3) + 1], 
+            float v1[3] = {vertices[(a * 3)],
+                            vertices[(a * 3) + 1],
                             vertices[(a * 3) + 2]};
-            float v2[3] = {vertices[(b * 3)], 
-                            vertices[(b * 3) + 1], 
+            float v2[3] = {vertices[(b * 3)],
+                            vertices[(b * 3) + 1],
                             vertices[(b * 3) + 2]};
-            float v3[3] = {vertices[(c * 3)], 
-                            vertices[(c * 3) + 1], 
+            float v3[3] = {vertices[(c * 3)],
+                            vertices[(c * 3) + 1],
                             vertices[(c * 3) + 2]};
 
-            calc_normal(v1, v2, v3, ret); 
+            calc_normal(v1, v2, v3, ret);
     }
 
-float mesh_geometry::calc_dot_product(float * v1, float * v2) 
+float slow_mesh_geometry::calc_dot_product(float * v1, float * v2)
 {
     return (v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]);
 }
 
 
 
-void mesh_geometry::recursive_orient(int face_index, 
-                    float * faces_normals, 
-                    int * faces_indices, 
+void slow_mesh_geometry::recursive_orient(int face_index,
+                    float * faces_normals,
+                    int * faces_indices,
                     int ** vertex_in_faces,
                     bool * visited) {
     
@@ -453,7 +355,7 @@ void mesh_geometry::recursive_orient(int face_index,
             float nface_normal[3] = {
                 faces_normals[(fi1 * 3)],
                 faces_normals[(fi1 * 3) + 1],
-                faces_normals[(fi1 * 3) + 2]  
+                faces_normals[(fi1 * 3) + 2]
             };
             if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
                 
@@ -480,33 +382,32 @@ void mesh_geometry::recursive_orient(int face_index,
                 faces_normals[(fi3 * 3) + 1],
                 faces_normals[(fi3 * 3) + 2]
             };
-            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {  
+            if(calc_dot_product(nface_normal, current_face_normal) < -0.1) {
                 faces_normals[(fi3 * 3)] = -faces_normals[(fi3 * 3)];
                 faces_normals[(fi3 * 3) + 1] = -faces_normals[(fi3 * 3) + 1];
                 faces_normals[(fi3 * 3) + 2] = -faces_normals[(fi3 * 3) + 2];
             }
         }
         if(fi1 != -1) {
-            recursive_orient(fi1, 
-                    faces_normals, 
-                    faces_indices, 
+            recursive_orient(fi1,
+                    faces_normals,
+                    faces_indices,
                     vertex_in_faces,
                     visited);
         }
-        if(fi2 != -1) {           
-            recursive_orient(fi2, 
-                    faces_normals, 
-                    faces_indices, 
+        if(fi2 != -1) {
+            recursive_orient(fi2,
+                    faces_normals,
+                    faces_indices,
                     vertex_in_faces,
                     visited);
         }
-        if(fi3 != -1) {    
-            recursive_orient(fi3, 
-                    faces_normals, 
-                    faces_indices, 
+        if(fi3 != -1) {
+            recursive_orient(fi3,
+                    faces_normals,
+                    faces_indices,
                     vertex_in_faces,
                     visited);
         }
     }
 }
-

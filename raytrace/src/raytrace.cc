@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
+#include <time.h>
 #include <cgmath/cgmath.hh>
 #include "raytracer.hh"
 #include "lambert_shader.hh"
@@ -22,6 +23,7 @@
 #include "plane_geometry.hh"
 #include "triangle_geometry.hh"
 #include "mesh_object.hh"
+#include "slow_mesh_object.hh"
 
 using namespace std;
 using namespace cgmath;
@@ -49,6 +51,9 @@ bool ACCELERATED;
 bool MIRROR; //ok implementation
 bool GLASS; //bad implementation
 
+time_t start_time;
+bool time_shown = false;
+
 raytracer*       tracer;
 sphere_geometry* sphere1_geometry;
 lambert_shader*  sphere1_shader;
@@ -62,7 +67,7 @@ object*          sphere3;
 triangle_geometry* triangle1_geometry;
 lambert_shader* triangle1_shader;
 object*          triangle1;
-mesh_geometry* mesh1_geometry;
+geometry* mesh1_geometry;
 lambert_shader* mesh1_shader;
 object*          mesh1;
 object*         mesh2;
@@ -104,28 +109,37 @@ int main (int argc, char* argv[])
     FNAME = "./box.ply";
     PHONG = false;
     ACCELERATED = true;
-    printf("%d\n", argc);
+    GLASS = false;
+    MIRROR = false;
     for (int i=0; i < argc; i++) {
-        printf("%s\n", argv[i]);
-        printf("%s, %s, %d\n", argv[i], "-h", strcmp(argv[i], "-h"));
         if(strcmp(argv[i],"-q") == 0){
+            printf("Disabling quasirandom sampling\n");
             QUASIRANDOM = false;
         }
         else if(strcmp(argv[i],"-i") == 0){
+            printf("Disabling indirect lightning\n");
             INDIRECT_ENABLED = false;
         }
         else if(strcmp(argv[i],"-f") == 0){
-            printf("using file %s\n", argv[i+1]); 
+            printf("Using file %s\n", argv[i+1]); 
             FNAME = argv[i+1];
             i++;
         }
         else if(strcmp(argv[i],"-p") == 0){
+            printf("Making one sphere a black phong sphere\n");
             PHONG = true;
         } else if (strcmp(argv[i],"-a") == 0){
+            printf("Disabling acceleration. Better get coffee now\n");
             ACCELERATED = false;        
         } else if (strcmp(argv[i], "-n") == 0){
             SAMPLES_PER_PIXEL = atoi(argv[i+1]);
             printf("sampling %d rays per pixel\n", SAMPLES_PER_PIXEL);
+         } else if (strcmp(argv[i], "-m") == 0){
+            MIRROR = true;
+            printf("making one ball a mirror\n");
+         } else if (strcmp(argv[i], "-g") == 0){
+            GLASS = true;
+            printf("adding a glass ball\n");
         } else if (strcmp(argv[i], "-h") == 0){
             printhelp();
             return 0;
@@ -135,6 +149,7 @@ int main (int argc, char* argv[])
     }
     init_window (640, 480);
     init_scene ();
+    start_time = time(NULL);
     event_loop ();
     return 0;
 }
@@ -260,7 +275,11 @@ void init_scene (void)
             triangle1_geometry,
             triangle1_shader);
 
-    mesh1_geometry = new mesh_geometry (FNAME);
+    if (ACCELERATED)
+        mesh1_geometry =(geometry*) new mesh_geometry (FNAME);
+    else 
+        mesh1_geometry = (geometry*)new slow_mesh_geometry (FNAME);
+
 
     matrix_4d obj_trans = translate(vec(1.0, 1.1, 1.0));
     if (strncmp(FNAME, "./bun", 4) == 0)
@@ -285,7 +304,7 @@ void init_scene (void)
     tracer->objects.push_back (plane1);
     //  tracer->objects.push_back (triangle1);
     tracer->objects.push_back (mesh1);
-    tracer->objects.push_back (mesh2);
+//    tracer->objects.push_back (mesh2);
     tracer->lights.push_back  (light1);
     tracer->lights.push_back  (light2);
 
@@ -316,7 +335,13 @@ void idle (void)
 {
     if (scanline < surf->h)
         tracer->trace_scanline (projection_matrix, surf, scanline++);
-    //12 is number of samples per pixel
+    else if (!time_shown){
+        time_shown = true;
+        int duration = (int)time(NULL)-start_time;
+        printf("Rendered scene with %d rays in %d seconds with %f rays/sec\n",
+        surf->h*surf->w*SAMPLES_PER_PIXEL, duration,
+        surf->h*surf->w*SAMPLES_PER_PIXEL/(1.0*duration));
+        }
     render_scene ();
 }
 
