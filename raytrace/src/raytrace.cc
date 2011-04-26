@@ -275,11 +275,7 @@ void init_scene (void)
             triangle1_geometry,
             triangle1_shader);
 
-    if (ACCELERATED)
-        mesh1_geometry =(geometry*) new mesh_geometry (FNAME);
-    else 
-        mesh1_geometry = (geometry*)new slow_mesh_geometry (FNAME);
-
+    mesh1_geometry = new mesh_geometry (FNAME, ACCELERATED);
 
     matrix_4d obj_trans = translate(vec(1.0, 1.1, 1.0));
     if (strncmp(FNAME, "./bun", 4) == 0)
