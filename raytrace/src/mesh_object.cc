@@ -295,6 +295,7 @@ mesh_geometry::mesh_geometry(const char * file_name) {
     fclose(ply); //close file
     free(vertex_in_faces);
     free(visited);
+    free(amount_of_faces_per_vertex);
     //END PLY FILE HANDLING
     
     cout << "amount of faces: ";
