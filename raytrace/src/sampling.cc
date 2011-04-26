@@ -4,7 +4,7 @@
 
 using namespace cgmath;
 
-const bool QUASIRANDOM = true;
+bool QUASIRANDOM;
 
 typedef unsigned int uint;
 uint i = 0;
@@ -32,7 +32,9 @@ double RI_S(uint i, uint r)
     r ^= v;
     return (double) r / (double) 0x100000000;
 }
-
+vector_3d phong_sample(){
+    return lambert_sample();
+    }
 
 vector_3d quasirandom_lambert_sample()
 {

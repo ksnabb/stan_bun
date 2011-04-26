@@ -1,17 +1,18 @@
-#ifndef GLASS_SHADER_HH
-#define GLASS_SHADER_HH
+#ifndef PHONG_SHADER_HH
+#define PHONG_SHADER_HH
 
 #include <cmath>
 #include "sampling.hh"
 #include "surface_point.hh"
 #include "shader.hh"
 
-/// \brief glass reflection model.
-class glass_shader : public shader
+/// \brief phongian reflection model.
+class phong_shader : public shader
 {
 public:
 
-  glass_shader (double refractive_index);
+  phong_shader (const cgmath::vector_3d& _ambient, const cgmath::vector_3d&
+                  _phong, double alpha);
   
   virtual cgmath::vector_3d bsdf (const surface_point&     point,
 				  const cgmath::vector_3d& in_dir,
@@ -22,7 +23,10 @@ public:
 			    const cgmath::vector_3d& out_dir,
 			    bsdf_samples&            samples);
 
-  double refractive_index;
+  /// Fraction of reflected light for each color sample.
+  cgmath::vector_3d ambient;
+  cgmath::vector_3d phong;
+  double alpha;
 };
 
 #endif

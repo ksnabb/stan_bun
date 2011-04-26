@@ -8,6 +8,7 @@
 
 /// Generate cosine-weighted random sample from  unit hemisphere z > 0.
 cgmath::vector_3d lambert_sample (void);
+cgmath::vector_3d phong_sample (void);
 cgmath::vector_3d quasirandom_lambert_sample (void);
 
 #endif
