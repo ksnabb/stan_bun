@@ -13,11 +13,9 @@
 class BVHtree {
   public:
     BVHtree();
-    BVHtree(std::vector<geometry*, std::allocator<geometry*> >);
-    BVHtree * children; //BVHtrees as children
+    BVHtree(std::vector<geometry*>);
+    BVHtree * children;
     cgmath::box_3d bbox; //bounding box
-    void add_child(BVHtree);
-    std::vector<triangle_geometry*> triangle_geometries; //if no children then there is a geometry inside the node
     std::vector<geometry*>  geoms; //but oh nothing works
 };
 #endif

@@ -14,7 +14,7 @@ class mesh_geometry : public geometry {
     
     public:
         mesh_geometry(const char *);
-        mesh_geometry(std::vector<geometry*>); //create a mesh_geometry of other geometries
+        mesh_geometry(std::vector<triangle_geometry*>); //create a mesh_geometry of other geometries
         virtual double hit (const cgmath::ray_3d& r) const;
         virtual void hit_surface_point(surface_point& sp) const;
         
@@ -36,8 +36,10 @@ class mesh_geometry : public geometry {
         float * vertex_normals;
         float * tex_coordinates;
         
-        BVHtree * tree;
-        cgmath::box_3d bbox; //bounding box
+        //BVHtree node
+        cgmath::sphere_3d bsphere; //bounding sphere
+        mesh_geometry * child1;
+        mesh_geometry * child2;
 
 };
 #endif
