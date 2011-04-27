@@ -1,9 +1,0 @@
-Acceleration structure:
-    Using 2 stanford bunnies of 948 faces (triangles) and a Core2Duo 6600
-    machine
-
-    Rendered scene with 614400 rays in 21 seconds with 29257.142857 rays/sec
-    Rendered scene with 614400 rays in 506 seconds with 1214.229249 rays/sec
-    
-    guess which is which?
-
