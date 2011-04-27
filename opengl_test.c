@@ -29,6 +29,233 @@ light_params lights[2];
 material_params material;
 GLuint num_lights = 1;
 
+
+class MeshObject {
+    private:
+        float * vertices;
+        int amount_of_vertices;
+        int * faces_indices;
+        float * faces_normals;
+        int amount_of_faces;
+        float * vertex_normals;
+        float * tex_coordinates;
+    
+    public:
+        MeshObject(const char *);
+}
+
+MeshObject::MeshObject(const char * file_name) {
+        //BEGIN PLY FILE HANDLING
+    FILE *ply;
+
+    char line[LINE_LENGTH]; //line to be read
+    bunny.amount_of_vertices = 0;
+    bunny.amount_of_faces = 0;
+
+    ply = fopen (file_name, "rt"); //open ply file
+
+    //read header
+    while (fgets(line, LINE_LENGTH, ply) != NULL)
+    {
+        /* convert the string to a long int */
+        if (!strncmp (line, "element vertex", 14)) {
+            sscanf(line, "element vertex %i", &bunny.amount_of_vertices);
+
+        } else if (!strncmp (line, "element face", 12)) {
+            sscanf(line, "element face %i", &bunny.amount_of_faces);
+        }
+
+        else if (!strncmp(line, "end_header", 10)) {
+            break;
+        }
+    }
+
+
+    #ifdef DEBUG
+    printf("file format says %i vertices, %i faces\n", 
+        bunny.amount_of_vertices,
+        bunny.amount_of_faces);
+    #endif
+  
+    //read vertices
+    int i;
+    float x;
+    float y;
+    float z;
+
+    //create vertex table for pushing into GLSL
+    bunny.vertices = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
+    bunny.tex_coordinates = (float *) malloc(bunny.amount_of_vertices * 2 *
+    sizeof(float)); //only u and v for texture 
+    
+    //set the vertex coordinates into bunny.vertices
+    for(i = 0; i < bunny.amount_of_vertices; i++) {
+        if(fgets(line, LINE_LENGTH, ply) != NULL)
+        {
+            sscanf(line, "%f %f %f", &x, &y, &z);
+            bunny.vertices[(3*i)] = x;
+            bunny.vertices[(3*i)+1] = y;
+            bunny.vertices[(3*i)+2] = z;
+            //trivial x=u, y=v mapping
+            bunny.tex_coordinates[2*i] = x;
+            bunny.tex_coordinates[2*i+1] = y;
+        }
+    }
+
+    //the indices of the faces is needed for what?
+    bunny.faces_indices = (int *) malloc(bunny.amount_of_faces * 3 * sizeof(int));
+    
+    //we need the face normal to be able to shade the faces correclty
+    bunny.faces_normals = (float *) malloc(bunny.amount_of_faces * 3 * sizeof(float));
+    
+    //the vertex normals
+    bunny.vertex_normals = (float *) malloc(bunny.amount_of_vertices * 3 * sizeof(float));
+    
+    
+    //count the face normals
+    int amount_of_face_indices;
+    int a, b, c;
+    int * amount_of_faces_per_vertex = (int *) malloc(bunny.amount_of_vertices * sizeof(int));
+    for(i = 0; i < bunny.amount_of_vertices; i++) {
+        amount_of_faces_per_vertex[i] = 0;
+    }
+    
+    bool * visited = (bool*) malloc(bunny.amount_of_faces * sizeof(bool*));
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+        visited[i] = false;
+    }
+
+    int ** vertex_in_faces =(int**) malloc(bunny.amount_of_vertices * sizeof(int*));
+    for (i = 0; i < bunny.amount_of_vertices; i++){
+        vertex_in_faces[i] = (int *)malloc(9 * sizeof(int)); //hope this is enough
+        int j;
+        for (j = 0; j < 9; j++) {
+            vertex_in_faces[i][j] = -1;
+        }
+    }
+    //todoo, free vertex_in_faces and visited after they're not needed
+    
+    
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+        fscanf (ply, "%i %i %i %i", &amount_of_face_indices, &a, &b, &c);
+        if (amount_of_face_indices == 3) //we're only interested in triangels
+        {
+            //save the index of each vertex
+            bunny.faces_indices[3*i] = a;      
+            bunny.faces_indices[(3*i)+1] = b;      
+            bunny.faces_indices[(3*i)+2] = c;
+            
+            vertex_in_faces[a][amount_of_faces_per_vertex[a]] = i; 
+            vertex_in_faces[b][amount_of_faces_per_vertex[b]] = i; 
+            vertex_in_faces[c][amount_of_faces_per_vertex[c]] = i; 
+
+            amount_of_faces_per_vertex[a]++;
+            amount_of_faces_per_vertex[b]++;
+            amount_of_faces_per_vertex[c]++;
+
+        }
+         else {
+            fprintf(stderr, "error, bad index data: not triangle!");    
+        }
+    }
+    
+   //just choose the face index where to start recursive calculation
+   float reference[3];
+   lazy_calc_normal(bunny.faces_indices[3*vertex_in_faces[0][0]],
+                    bunny.faces_indices[3*vertex_in_faces[0][0]+1], 
+                    bunny.faces_indices[3*vertex_in_faces[0][0]+2],
+                    reference); 
+
+    //count the face normals
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+            a = bunny.faces_indices[3*i];      
+            b = bunny.faces_indices[(3*i)+1];      
+            c = bunny.faces_indices[(3*i)+2];
+            //point vectors to the vertices for the triangle
+            float v1[3] = {bunny.vertices[(a * 3)], 
+                            bunny.vertices[(a * 3) + 1], 
+                            bunny.vertices[(a * 3) + 2]};
+            float v2[3] = {bunny.vertices[(b * 3)], 
+                            bunny.vertices[(b * 3) + 1], 
+                            bunny.vertices[(b * 3) + 2]};
+            float v3[3] = {bunny.vertices[(c * 3)], 
+                            bunny.vertices[(c * 3) + 1], 
+                            bunny.vertices[(c * 3) + 2]};
+
+            //calculate the face normal
+            float res[3];
+            calc_normal(v1, v2, v3, res);
+
+            // add the face normal to bunny
+            bunny.faces_normals[(i * 3)] = res[0];
+            bunny.faces_normals[(i * 3) + 1] = res[1];
+            bunny.faces_normals[(i * 3) + 2] = res[2];
+            
+    }
+    
+    //check the faces_normals just calculated and turn them around
+    //if needed
+        
+    //choose a reference face (index of the reference face)
+    int reference_face_index = 0;
+    recursive_orient(reference_face_index, 
+                    bunny.faces_normals,
+                    bunny.faces_indices,
+                    vertex_in_faces, 
+                    visited);
+    
+    //add the faces normals to the vertex normals
+    for(i = 0; i < bunny.amount_of_faces; i++) {
+            a = bunny.faces_indices[3*i];      
+            b = bunny.faces_indices[(3*i)+1];      
+            c = bunny.faces_indices[(3*i)+2];
+            
+            
+            float res[3] = {
+                bunny.faces_normals[(i * 3)],
+                bunny.faces_normals[(i * 3) + 1],
+                bunny.faces_normals[(i * 3) + 2]
+            };
+            
+           //(only add, normalize later)
+            bunny.vertex_normals[(a * 3)] += res[0];
+            bunny.vertex_normals[(a * 3) + 1] += res[1];
+            bunny.vertex_normals[(a * 3) + 2] += res[2];
+            
+            bunny.vertex_normals[(b * 3)] += res[0];
+            bunny.vertex_normals[(b * 3) + 1] += res[1];
+            bunny.vertex_normals[(b * 3) + 2] += res[2];
+
+            bunny.vertex_normals[(c * 3)] += res[0];
+            bunny.vertex_normals[(c * 3) + 1] += res[1];
+            bunny.vertex_normals[(c * 3) + 2] += res[2];
+    }
+    
+    //normalize the vertex normals (average)
+    for(i = 0; i < bunny.amount_of_vertices; i++) {
+        float temp[3];
+        temp[0] = bunny.vertex_normals[(i * 3)];
+        temp[1] = bunny.vertex_normals[(i * 3) + 1];
+        temp[2] = bunny.vertex_normals[(i * 3) + 2]; 
+        
+        float normalization = sqrt(temp[0] * temp[0] + temp[1] * temp[1] + temp[2] * temp[2]);
+        temp[0] = temp[0]/normalization;
+        temp[1] = temp[1]/normalization;
+        temp[2] = temp[2]/normalization;
+
+        bunny.vertex_normals[(i * 3)] = temp[0];
+        bunny.vertex_normals[(i * 3) + 1] = temp[1];
+        bunny.vertex_normals[(i * 3) + 2] = temp[2];
+        
+    }
+
+    fclose(ply); //close file
+
+    //END PLY FILE HANDLING
+
+}
+
+
 //sets, loads and whatnot shaders
 void set_shaders(){
      

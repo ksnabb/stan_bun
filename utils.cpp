@@ -1,4 +1,5 @@
-#include <utils.h>
+#include <utils.hh>
+#include <iostream>
 
 int LINE_LENGTH=100;
 
@@ -362,3 +363,13 @@ void MeshObject::recursive_orient(int face_index,
     }
 }
 
+
+void MeshObject::find_intersections(const line_segment<scalar,3>& l, double& t) {
+    int i = 0;
+    for(i = 0; i < amount_of_faces; i++) {
+        
+        cout << vertices[faces_indices[i]];
+        cout << vertices[faces_indices[i+1]];
+        cout << vertices[faces_indices[i+2]];
+    }
+}

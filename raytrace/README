@@ -20,6 +20,11 @@ included files are box.ply and bun_zipper_res4.ply
 * Simple indirect lightning (1p)
 * Complex indirect lightning (russian roulette) (1p)
 
+Our russian roulette is slightly modified from the one presented in the lecture 
+slides: a ray shot from the camera (and not bounced) is always bounced at least 
+once to reduce noise. We take this into account and do not multiply by 2 to 
+preserve the unbiased nature of the estimator.
+
 You can disable indirect lightning with the option -i
 
 * Acceleration structure (bounding volume hierarchy) (3p)
@@ -35,23 +40,23 @@ The performance gain is with a bunny:
     
     guess which is which?
 
-The bounding volume hierarchy is built using a bounding sphere geometry. The 
+The bounding volume hierarchy is built using bounding sphere geometries. The 
 object's triangles are divided into two equal size child objects and the bounding 
-sphere counted for them. This loop is continued until there is one triangle in 
-the child. The ray is then tested for the parent node before testing the
-children.
+sphere counted for them. The triangles are not ordered. It is hoped that nearby 
+triangles are adjacent in the file format. This loop is continued until there is
+one triangle in the child. A shot ray is then tested down the tree to find where
+it may hit.
 
 * perfect mirror reflection and glass reflection (1p)
 
 You can turn one sphere to a mirror with the option -m
 The option -g adds a glass sphere in front of the two other speheres
 
-
-
 * phong shader (1p)
 
 Turn the phong shader function on with the option -p
-This will turn one sphere into a black phong shaded sphere.
+This will turn one sphere into a black phong shaded sphere. There is quite a bit
+of noise on the sphere as was to be expected.
 
 * quasirandom (1p)
 

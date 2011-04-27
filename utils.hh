@@ -13,6 +13,7 @@ class MeshObject {
         void calc_normal(float *, float *, float *, float *);
         void recursive_orient(int, float *, int *, int **, bool *);
         float calc_dot_product(float*, float*);
+        void find_intersections(const scalar<>, double);
         float * vertices;
         int amount_of_vertices;
         int * faces_indices;
