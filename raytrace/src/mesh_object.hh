@@ -7,7 +7,6 @@
 #include <cgmath/cgmath.hh>
 #include "geometry.hh"
 #include <vector>
-#include "BVHtree.hh"
 
 class mesh_geometry : public geometry {
     //make this a node in the tree
@@ -36,7 +35,6 @@ class mesh_geometry : public geometry {
         float * vertex_normals;
         float * tex_coordinates;
         
-        //BVHtree node
         cgmath::sphere_3d bsphere; //bounding sphere
         mesh_geometry * child1;
         mesh_geometry * child2;
