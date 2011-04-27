@@ -1,8 +1,78 @@
-Documentation is in doc/html.
+The code is a raytracing exercise
 
-make should compile this on linux and on OSX you probably need to fiddle with 
-the makefile. 
+Compile the code with make (tested to work on machines Maari-C, some links in
+directory structure expect that).
 
-Requires sdl and sdl image libraries.
+After that you start the program by giving the command
+./bin/raytrace
+
+As defualt the program uses bos.ply file and cannot be run from
+the bin folder.
+
+## Completed
+
+* Adapted our mesh loader from previous exercise (1p)
+
+You can choose ply file to use with -f <name_of_plyfile>
+included files are box.ply and bun_zipper_res4.ply
+
+* Shadow test (1p)
+* Simple indirect lightning (1p)
+* Complex indirect lightning (russian roulette) (1p)
+
+You can disable indirect lightning with the option -i
+
+* Acceleration structure (bounding volume hierarchy) (3p)
+
+You can turn the accelerator off with -a option
+
+The performance gain is with a bunny:
+    Using 2 stanford bunnies of 948 faces (triangles) and a Core2Duo 6600
+    machine
+
+    Rendered scene with 614400 rays in 21 seconds with 29257.142857 rays/sec
+    Rendered scene with 614400 rays in 506 seconds with 1214.229249 rays/sec
+    
+    guess which is which?
+
+The bounding volume hierarchy is built using a bounding sphere geometry. The 
+object's triangles are divided into two equal size child objects and the bounding 
+sphere counted for them. This loop is continued until there is one triangle in 
+the child. The ray is then tested for the parent node before testing the
+children.
+
+* perfect mirror reflection and glass reflection (1p)
+
+You can turn one sphere to a mirror with the option -m
+The option -g adds a glass sphere in front of the two other speheres
 
 
+
+* phong shader (1p)
+
+Turn the phong shader function on with the option -p
+This will turn one sphere into a black phong shaded sphere.
+
+* quasirandom (1p)
+
+Turn quasirandom off with the option -q
+At the moment only small differences can be seen, there is some patterns showing
+up in the spheres. But we cannot be sure if the patterns shown are correct.
+
+## Additional features
+
+You can print out help with the option -h
+
+You can choose how many rays per pixel will be used with the option -n <rays_per_pixel>
+
+## Known problems
+
+* The mesh loader might crash if there is some problems with the format of the 
+file or comments in the file.
+* Does not work on minilaptops, some problems with memory and graphic cards.
+* Command line option parsing is not robust, can crash easily 
+* We do not turn the normals of the bunny or other ply objects
+
+Made By:
+Jyry Suvilehto 64555P
+Kristoffer Snabb 57872V
